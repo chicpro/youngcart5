@@ -238,10 +238,10 @@ function thumbnail($filename, $source_path, $target_path, $thumb_width, $thumb_h
     $degree = 0;
 
     if ($size[2] == 1) {
-        $src = imagecreatefromgif($source_file);
-        $src_transparency = imagecolortransparent($src);
+        $src = @imagecreatefromgif($source_file);
+        $src_transparency = @imagecolortransparent($src);
     } else if ($size[2] == 2) {
-        $src = imagecreatefromjpeg($source_file);
+        $src = @imagecreatefromjpeg($source_file);
 
         if(function_exists('exif_read_data')) {
             // exif 정보를 기준으로 회전각도 구함
@@ -273,8 +273,8 @@ function thumbnail($filename, $source_path, $target_path, $thumb_width, $thumb_h
             }
         }
     } else if ($size[2] == 3) {
-        $src = imagecreatefrompng($source_file);
-        imagealphablending($src, true);
+        $src = @imagecreatefrompng($source_file);
+        @imagealphablending($src, true);
     } else {
         return;
     }
