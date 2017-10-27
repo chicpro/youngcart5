@@ -14,8 +14,8 @@ class SLACK
     private $username;
     private $message;
 
-    public function __construct($token, $username='Slack Bot') {
-        $this->token    = $token;
+    public function __construct($username=G5_SLACK_USERNAME) {
+        $this->token    = G5_SLACK_TOKEN;
         $this->username = $username;
     }
 
@@ -23,12 +23,19 @@ class SLACK
         $this->channel = $channel;
     }
 
-    public function setUsetName($username) {
+    public function setUsername($username) {
         $this->username = $username;
     }
 
-    public function setMessage($message) {
-        $this->message = $message;
+    public function setMessage($message, $url='', $len=0) {
+        $_message = strip_tags(trim($message));
+        if($len > 0)
+            $_message = cut_str($_message, $len);
+        
+        if($url)
+            $_message .= "\n" . set_http($url);
+        
+        $this->message = $_message;
     }
 
     public function send() {
