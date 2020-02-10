@@ -1,6 +1,11 @@
 <?php
 include_once('./_common.php');
 
+// 상품 리스트에서 다른 필드로 정렬을 하려면 아래의 배열 코드에서 해당 필드를 추가하세요.
+if( isset($sort) && ! in_array($sort, array('it_sum_qty', 'it_price', 'it_use_avg', 'it_use_cnt', 'it_update_time')) ){
+    $sort='';
+}
+
 if (G5_IS_MOBILE) {
     include_once(G5_MSHOP_PATH.'/list.php');
     return;
@@ -29,7 +34,7 @@ if(!$is_admin) {
 
 $g5['title'] = $ca['ca_name'].' 상품리스트';
 
-if ($ca['ca_include_head'])
+if ($ca['ca_include_head'] && is_include_path_check($ca['ca_include_head']))
     @include_once($ca['ca_include_head']);
 else
     include_once(G5_SHOP_PATH.'/_head.php');
@@ -56,7 +61,7 @@ if($ca['ca_skin_dir']) {
 define('G5_SHOP_CSS_URL', str_replace(G5_PATH, G5_URL, $skin_dir));
 
 if ($is_admin)
-    echo '<div class="sct_admin"><a href="'.G5_ADMIN_URL.'/shop_admin/categoryform.php?w=u&amp;ca_id='.$ca_id.'" class="btn_admin">분류 관리</a></div>';
+    echo '<div class="sct_admin"><a href="'.G5_ADMIN_URL.'/shop_admin/categoryform.php?w=u&amp;ca_id='.$ca_id.'" class="btn_admin btn"><span class="sound_only">분류 관리</span><i class="fa fa-cog fa-spin fa-fw"></i></a></div>';
 ?>
 
 <script>
@@ -157,7 +162,7 @@ var itemlist_ca_id = "<?php echo $ca_id; ?>";
 <!-- } 상품 목록 끝 -->
 
 <?php
-if ($ca['ca_include_tail'])
+if ($ca['ca_include_tail'] && is_include_path_check($ca['ca_include_tail']))
     @include_once($ca['ca_include_tail']);
 else
     include_once(G5_SHOP_PATH.'/_tail.php');

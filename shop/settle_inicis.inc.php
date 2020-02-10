@@ -15,7 +15,8 @@ if ($default['de_card_test']) {
         $default['de_inicis_sign_key'] = 'SU5JTElURV9UUklQTEVERVNfS0VZU1RS';
     }
 
-    $stdpay_js_url = 'https://stdpay.inicis.com/stdjs/INIStdPay.js';
+    // 테스트 결제 URL
+    $stdpay_js_url = 'https://stgstdpay.inicis.com/stdjs/INIStdPay.js';
 }
 else {
     if( !defined('G5_MOBILE_INICIS_SETTLE') ){
@@ -30,7 +31,8 @@ else {
         // 일반결제
         $useescrow = '';
     }
-
+    
+    // 실 결제 URL
     $stdpay_js_url = 'https://stdpay.inicis.com/stdjs/INIStdPay.js';
 }
 
@@ -52,10 +54,16 @@ $inipay = new INIpay50;
 $inipay->SetField("inipayhome", G5_SHOP_PATH.'/inicis'); // 이니페이 홈디렉터리(상점수정 필요)
 $inipay->SetField("debug", "false");
 
+if( ! function_exists('mcrypt_encrypt')) {      // mcrypt 관련 함수가 없다면 취소시 openssl로 합니다.
+    $inipay->SetField("encMethod", "openssl");
+}
+
 $util = new INIStdPayUtil();
 
 $timestamp = $util->getTimestamp();   // util에 의해서 자동생성
 
+// 이니시스에서 진행하는 무이자 이벤트 외 별도의 카드 무이자 설정이 필요한 경우 이니시스의 승인이 필요합니다.
+// 코드는 따로 입력해야 합니다. 예) $cardNoInterestQuota = '51-2:3:5,14-5:6,34-3:4';
 $cardNoInterestQuota = '';  // 카드 무이자 여부 설정(가맹점에서 직접 설정)
 $cardQuotaBase = '2:3:4:5:6:7:8:9:10:11:12';  // 가맹점에서 사용할 할부 개월수 설정
 
@@ -64,7 +72,7 @@ $inicis_cardpoint = $default['de_inicis_cartpoint_use'] ? ':cardpoint' : '';   /
 $acceptmethod = 'HPP(2):no_receipt:vbank('.date('Ymd', strtotime("+3 days", G5_SERVER_TIME)).'):below1000'.$useescrow.$inicis_cardpoint;
 
 /* 기타 */
-$siteDomain = G5_SHOP_URL.'/inicis'; //가맹점 도메인 입력
+$siteDomain = G5_HTTPS_SHOP_URL.'/inicis'; //가맹점 도메인 입력
 // 페이지 URL에서 고정된 부분을 적는다.
 // Ex) returnURL이 http://localhost:8082/demo/INIpayStdSample/INIStdPayReturn.php 라면
 //                 http://localhost:8082/demo/INIpayStdSample 까지만 기입한다.

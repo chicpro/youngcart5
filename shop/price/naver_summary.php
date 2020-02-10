@@ -40,7 +40,7 @@ ob_start();
 
 echo "id{$tab}title{$tab}price_pc{$tab}link{$tab}image_link{$tab}category_name1{$tab}category_name2{$tab}category_name3{$tab}category_name4{$tab}model_number{$tab}brand{$tab}maker{$tab}origin{$tab}point{$tab}shipping{$tab}class{$tab}update_time";
 
-$sql =" select * from {$g5['g5_shop_item_table']} where it_use = '1' and substring(it_update_time, 1, 10) = '".G5_TIME_YMD."' order by ca_id";
+$sql =" select * from {$g5['g5_shop_item_table']} where it_use = '1' and it_soldout = '0' and it_tel_inq = '0' and it_price > '0' and substring(it_update_time, 1, 10) = '".G5_TIME_YMD."' order by ca_id";
 $result = sql_query($sql);
 
 for ($i=0; $row=sql_fetch_array($result); $i++)
@@ -79,7 +79,7 @@ for ($i=0; $row=sql_fetch_array($result); $i++)
     // 포인트
     $it_point = get_item_point($row);
 
-    $item_link = G5_SHOP_URL.'/item.php?it_id='.$row['it_id'];
+    $item_link = shop_item_url($row['it_id']);
 
     // 상태
     $class = 'U';

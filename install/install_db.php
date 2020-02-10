@@ -11,37 +11,23 @@ header('Pragma: no-cache'); // HTTP/1.0
 
 include_once ('../config.php');
 include_once ('../lib/common.lib.php');
+include_once('./install.function.php');    // 인스톨 과정 함수 모음
 
-if( ! function_exists('safe_install_string_check') ){
-    function safe_install_string_check( $str ) {
-        $is_check = false;
-
-        if(preg_match('#\);(passthru|eval|pcntl_exec|exec|system|popen|fopen|fsockopen|file|file_get_contents|readfile|unlink|include|include_once|require|require_once)\s?#i', $str)) {
-            $is_check = true;
-        }
-
-        if(preg_match('#\$_(get|post|request)\s?\[.*?\]\s?\)#i', $str)){
-            $is_check = true;
-        }
-
-        if($is_check){
-            die("입력한 값에 안전하지 않는 문자가 포함되어 있습니다. 설치를 중단합니다.");
-        }
-
-        return $str;
-    }
-}
+include_once('../lib/hook.lib.php');    // hook 함수 파일
+include_once('../lib/get_data.lib.php');    
+include_once('../lib/uri.lib.php');    // URL 함수 파일
+include_once('../lib/cache.lib.php');
 
 $title = G5_VERSION." 설치 완료 3/3";
 include_once ('./install.inc.php');
 
 //print_r($_POST); exit;
 
-$mysql_host  = safe_install_string_check($_POST['mysql_host']);
-$mysql_user  = safe_install_string_check($_POST['mysql_user']);
-$mysql_pass  = safe_install_string_check($_POST['mysql_pass']);
-$mysql_db    = safe_install_string_check($_POST['mysql_db']);
-$table_prefix= safe_install_string_check($_POST['table_prefix']);
+$mysql_host  = $_POST['mysql_host'];
+$mysql_user  = $_POST['mysql_user'];
+$mysql_pass  = $_POST['mysql_pass'];
+$mysql_db    = $_POST['mysql_db'];
+$table_prefix= $_POST['table_prefix'];
 $admin_id    = $_POST['admin_id'];
 $admin_pass  = $_POST['admin_pass'];
 $admin_name  = $_POST['admin_name'];
@@ -51,6 +37,10 @@ if (isset($_POST['g5_install']))
     $g5_install  = $_POST['g5_install'];
 $g5_shop_prefix = $_POST['g5_shop_prefix'];
 $g5_shop_install= $_POST['g5_shop_install'];
+
+if (preg_match("/[^0-9a-z_]+/i", $admin_id)) {
+    die('<div class="ins_inner"><p>관리자 아이디는 영문자, 숫자, _ 만 입력하세요.</p><div class="inner_btn"><a href="./install_config.php">뒤로가기</a></div></div>');
+}
 
 $dblink = sql_connect($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
 if (!$dblink) {
@@ -81,7 +71,7 @@ if (!$select_db) {
 }
 
 $mysql_set_mode = 'false';
-sql_set_charset('utf8', $dblink);
+sql_set_charset(G5_DB_CHARSET, $dblink);
 $result = sql_query(" SELECT @@sql_mode as mode ", true, $dblink);
 $row = sql_fetch_array($result);
 if($row['mode']) {
@@ -111,7 +101,10 @@ if($g5_install || !$result) {
     $f = explode(';', $file);
     for ($i=0; $i<count($f); $i++) {
         if (trim($f[$i]) == '') continue;
-        sql_query($f[$i], true, $dblink);
+
+        $sql = get_db_create_replace($f[$i]);
+
+        sql_query($sql, true, $dblink);
     }
 }
 
@@ -124,7 +117,10 @@ if($g5_shop_install) {
     $f = explode(';', $file);
     for ($i=0; $i<count($f); $i++) {
         if (trim($f[$i]) == '') continue;
-        sql_query($f[$i], true, $dblink);
+
+        $sql = get_db_create_replace($f[$i]);
+
+        sql_query($sql, true, $dblink);
     }
 }
 // 테이블 생성 ------------------------------------
@@ -193,6 +189,9 @@ if($g5_install || !$result) {
                     cf_member_icon_size = '5000',
                     cf_member_icon_width = '22',
                     cf_member_icon_height = '22',
+                    cf_member_img_size = '50000',
+                    cf_member_img_width = '60',
+                    cf_member_img_height = '60',
                     cf_login_minutes = '10',
                     cf_image_extension = 'gif|jpg|jpeg|png',
                     cf_flash_extension = 'swf',
@@ -216,7 +215,7 @@ if($g5_install || !$result) {
     // 관리자 회원가입
     $sql = " insert into `{$table_prefix}member`
                 set mb_id = '$admin_id',
-                     mb_password = PASSWORD('$admin_pass'),
+                     mb_password = '".get_encrypt_string($admin_pass)."',
                      mb_name = '$admin_name',
                      mb_nick = '$admin_name',
                      mb_email = '$admin_email',
@@ -236,167 +235,24 @@ if($g5_install || !$result) {
 
     // FAQ Master
     sql_query(" insert into `{$table_prefix}faq_master` set fm_id = '1', fm_subject = '자주하시는 질문' ", true, $dblink);
-}
 
-if($g5_shop_install) {
-    // 이미지 사이즈
-    $simg_width = 230;
-    $simg_height = 230;
-    $mimg_width = 320;
-    $mimg_height = 320;
-
-    // default 설정 (쇼핑몰 설정)
-    $sql = " insert into `{$g5_shop_prefix}default`
-                set de_admin_company_name = '회사명',
-                    de_admin_company_saupja_no = '123-45-67890',
-                    de_admin_company_owner = '대표자명',
-                    de_admin_company_tel = '02-123-4567',
-                    de_admin_company_fax = '02-123-4568',
-                    de_admin_tongsin_no = '제 OO구 - 123호',
-                    de_admin_buga_no = '12345호',
-                    de_admin_company_zip = '123-456',
-                    de_admin_company_addr = 'OO도 OO시 OO구 OO동 123-45',
-                    de_admin_info_name = '정보책임자명',
-                    de_admin_info_email = '정보책임자 E-mail',
-                    de_shop_skin = 'basic',
-                    de_shop_mobile_skin = 'basic',
-                    de_type1_list_use = '1',
-                    de_type1_list_skin = 'main.10.skin.php',
-                    de_type1_list_mod = '3',
-                    de_type1_list_row = '2',
-                    de_type1_img_width = '$simg_width',
-                    de_type1_img_height = '$simg_height',
-                    de_type2_list_use = '1',
-                    de_type2_list_skin = 'main.10.skin.php',
-                    de_type2_list_mod = '3',
-                    de_type2_list_row = '2',
-                    de_type2_img_width = '$simg_width',
-                    de_type2_img_height = '$simg_height',
-                    de_type3_list_use = '1',
-                    de_type3_list_skin = 'main.10.skin.php',
-                    de_type3_list_mod = '1',
-                    de_type3_list_row = '3',
-                    de_type3_img_width = '$simg_width',
-                    de_type3_img_height = '$simg_height',
-                    de_type4_list_use = '1',
-                    de_type4_list_skin = 'main.10.skin.php',
-                    de_type4_list_mod = '3',
-                    de_type4_list_row = '1',
-                    de_type4_img_width = '$simg_width',
-                    de_type4_img_height = '$simg_height',
-                    de_type5_list_use = '1',
-                    de_type5_list_skin = 'main.10.skin.php',
-                    de_type5_list_mod = '3',
-                    de_type5_list_row = '1',
-                    de_type5_img_width = '$simg_width',
-                    de_type5_img_height = '$simg_height',
-                    de_mobile_type1_list_use = '1',
-                    de_mobile_type1_list_skin = 'main.10.skin.php',
-                    de_mobile_type1_list_mod = '3',
-                    de_mobile_type1_list_row = '2',
-                    de_mobile_type1_img_width = '$simg_width',
-                    de_mobile_type1_img_height = '$simg_height',
-                    de_mobile_type2_list_use = '1',
-                    de_mobile_type2_list_skin = 'main.10.skin.php',
-                    de_mobile_type2_list_mod = '3',
-                    de_mobile_type2_list_row = '2',
-                    de_mobile_type2_img_width = '$simg_width',
-                    de_mobile_type2_img_height = '$simg_height',
-                    de_mobile_type3_list_use = '1',
-                    de_mobile_type3_list_skin = 'main.10.skin.php',
-                    de_mobile_type3_list_mod = '3',
-                    de_mobile_type3_list_row = '2',
-                    de_mobile_type3_img_width = '$simg_width',
-                    de_mobile_type3_img_height = '$simg_height',
-                    de_mobile_type4_list_use = '1',
-                    de_mobile_type4_list_skin = 'main.10.skin.php',
-                    de_mobile_type4_list_mod = '3',
-                    de_mobile_type4_list_row = '2',
-                    de_mobile_type4_img_width = '$simg_width',
-                    de_mobile_type4_img_height = '$simg_height',
-                    de_mobile_type5_list_use = '1',
-                    de_mobile_type5_list_skin = 'main.10.skin.php',
-                    de_mobile_type5_list_mod = '3',
-                    de_mobile_type5_list_row = '2',
-                    de_mobile_type5_img_width = '$simg_width',
-                    de_mobile_type5_img_height = '$simg_height',
-                    de_bank_use = '1',
-                    de_bank_account = 'OO은행 12345-67-89012 예금주명',
-                    de_vbank_use = '0',
-                    de_iche_use = '0',
-                    de_card_use = '0',
-                    de_settle_min_point = '5000',
-                    de_settle_max_point = '50000',
-                    de_settle_point_unit = '100',
-                    de_cart_keep_term = '15',
-                    de_card_point = '0',
-                    de_point_days = '7',
-                    de_pg_service = 'kcp',
-                    de_kcp_mid = '',
-                    de_send_cost_case = '차등',
-                    de_send_cost_limit = '20000;30000;40000',
-                    de_send_cost_list = '4000;3000;2000',
-                    de_hope_date_use = '0',
-                    de_hope_date_after = '3',
-                    de_baesong_content = '배송 안내 입력전입니다.',
-                    de_change_content = '교환/반품 안내 입력전입니다.',
-                    de_rel_list_use = '1',
-                    de_rel_list_skin = 'relation.10.skin.php',
-                    de_rel_list_mod = '3',
-                    de_rel_img_width = '$simg_width',
-                    de_rel_img_height = '$simg_height',
-                    de_mobile_rel_list_use = '1',
-                    de_mobile_rel_list_skin = 'relation.10.skin.php',
-                    de_mobile_rel_list_mod = '3',
-                    de_mobile_rel_img_width = '$simg_width',
-                    de_mobile_rel_img_height = '$simg_height',
-                    de_search_list_skin = 'list.10.skin.php',
-                    de_search_img_width = '$simg_width',
-                    de_search_img_height = '$simg_height',
-                    de_search_list_mod = '3',
-                    de_search_list_row = '5',
-                    de_mobile_search_list_skin = 'list.10.skin.php',
-                    de_mobile_search_img_width = '$simg_width',
-                    de_mobile_search_img_height = '$simg_height',
-                    de_mobile_search_list_mod = '3',
-                    de_mobile_search_list_row = '5',
-                    de_listtype_list_skin = 'list.10.skin.php',
-                    de_listtype_img_width = '$simg_width',
-                    de_listtype_img_height = '$simg_height',
-                    de_listtype_list_mod = '3',
-                    de_listtype_list_row = '5',
-                    de_mobile_listtype_list_skin = 'list.10.skin.php',
-                    de_mobile_listtype_img_width = '$simg_width',
-                    de_mobile_listtype_img_height = '$simg_height',
-                    de_mobile_listtype_list_mod = '3',
-                    de_mobile_listtype_list_row = '5',
-                    de_simg_width = '$simg_width',
-                    de_simg_height = '$simg_height',
-                    de_mimg_width = '$mimg_width',
-                    de_mimg_height = '$mimg_height',
-                    de_item_use_use = '1',
-                    de_level_sell = '1',
-                    de_code_dup_use = '1',
-                    de_card_test = '1',
-                    de_sms_cont1 = '{이름}님의 회원가입을 축하드립니다.\nID:{회원아이디}\n{회사명}',
-                    de_sms_cont2 = '{이름}님 주문해주셔서 고맙습니다.\n{주문번호}\n{주문금액}원\n{회사명}',
-                    de_sms_cont3 = '{이름}님께서 주문하셨습니다.\n{주문번호}\n{주문금액}원\n{회사명}',
-                    de_sms_cont4 = '{이름}님 입금 감사합니다.\n{입금액}원\n주문번호:\n{주문번호}\n{회사명}',
-                    de_sms_cont5 = '{이름}님 배송합니다.\n택배:{택배회사}\n운송장번호:\n{운송장번호}\n{회사명}'
-                    ";
-    sql_query($sql, true, $dblink);
+    $tmp_gr_id = defined('G5_YOUNGCART_VER') ? 'shop' : 'community';
+    $tmp_gr_subject = defined('G5_YOUNGCART_VER') ? '쇼핑몰' : '커뮤니티';
 
     // 게시판 그룹 생성
-    sql_query(" insert into `{$table_prefix}group` set gr_id = 'shop', gr_subject = '쇼핑몰' ", true, $dblink);
+    sql_query(" insert into `{$table_prefix}group` set gr_id = '$tmp_gr_id', gr_subject = '$tmp_gr_subject' ", true, $dblink);
 
     // 게시판 생성
-    $tmp_bo_table   = array ("qa", "free", "notice");
-    $tmp_bo_subject = array ("질문답변", "자유게시판", "공지사항");
+    $tmp_bo_table   = array ("notice", "qa", "free", "gallery");
+    $tmp_bo_subject = array ("공지사항", "질문답변", "자유게시판", "갤러리");
     for ($i=0; $i<count($tmp_bo_table); $i++)
     {
+
+        $bo_skin = ($tmp_bo_table[$i] === 'gallery') ? 'gallery' : 'basic';
+
         $sql = " insert into `{$table_prefix}board`
                     set bo_table = '$tmp_bo_table[$i]',
-                        gr_id = 'shop',
+                        gr_id = '$tmp_gr_id',
                         bo_subject = '$tmp_bo_subject[$i]',
                         bo_device           = 'both',
                         bo_admin            = '',
@@ -437,9 +293,9 @@ if($g5_shop_install) {
                         bo_mobile_page_rows = '15',
                         bo_new              = '24',
                         bo_hot              = '100',
-                        bo_image_width      = '600',
-                        bo_skin             = 'basic',
-                        bo_mobile_skin      = 'basic',
+                        bo_image_width      = '835',
+                        bo_skin             = '$bo_skin',
+                        bo_mobile_skin      = '$bo_skin',
                         bo_include_head     = '_head.php',
                         bo_include_tail     = '_tail.php',
                         bo_content_head     = '',
@@ -448,8 +304,8 @@ if($g5_shop_install) {
                         bo_mobile_content_tail     = '',
                         bo_insert_content   = '',
                         bo_gallery_cols     = '4',
-                        bo_gallery_width    = '174',
-                        bo_gallery_height   = '124',
+                        bo_gallery_width    = '202',
+                        bo_gallery_height   = '150',
                         bo_mobile_gallery_width = '125',
                         bo_mobile_gallery_height= '100',
                         bo_upload_count     = '2',
@@ -461,7 +317,9 @@ if($g5_shop_install) {
         sql_query($sql, true, $dblink);
 
         // 게시판 테이블 생성
-        $file = file("../adm/sql_write.sql");
+        $file = file("../".G5_ADMIN_DIR."/sql_write.sql");
+        $file = get_db_create_replace($file);
+
         $sql = implode($file, "\n");
 
         $create_table = $table_prefix.'write_' . $tmp_bo_table[$i];
@@ -470,8 +328,165 @@ if($g5_shop_install) {
         $source = array("/__TABLE_NAME__/", "/;/");
         $target = array($create_table, "");
         $sql = preg_replace($source, $target, $sql);
-        sql_query($sql, true, $dblink);
+        sql_query($sql, false, $dblink);
     }
+}
+
+if($g5_shop_install) {
+    // 이미지 사이즈
+    $ssimg_width = 160;
+    $ssimg_height = 160;
+    $simg_width = 215;
+    $simg_height = 215;
+    $mimg_width = 230;
+    $mimg_height = 230;
+    $mmimg_width = 300;
+    $mmimg_height = 300;
+    $msimg_width = 80;
+    $msimg_height = 80;
+    $list_img_width = 225;
+    $list_img_height = 225;
+
+    // default 설정 (쇼핑몰 설정)
+    $sql = " insert into `{$g5_shop_prefix}default`
+                set de_admin_company_name = '회사명',
+                    de_admin_company_saupja_no = '123-45-67890',
+                    de_admin_company_owner = '대표자명',
+                    de_admin_company_tel = '02-123-4567',
+                    de_admin_company_fax = '02-123-4568',
+                    de_admin_tongsin_no = '제 OO구 - 123호',
+                    de_admin_buga_no = '12345호',
+                    de_admin_company_zip = '123-456',
+                    de_admin_company_addr = 'OO도 OO시 OO구 OO동 123-45',
+                    de_admin_info_name = '정보책임자명',
+                    de_admin_info_email = '정보책임자 E-mail',
+                    de_shop_skin = 'basic',
+                    de_shop_mobile_skin = 'basic',
+                    de_type1_list_use = '1',
+                    de_type1_list_skin = 'main.10.skin.php',
+                    de_type1_list_mod = '5',
+                    de_type1_list_row = '1',
+                    de_type1_img_width = '$ssimg_width',
+                    de_type1_img_height = '$ssimg_height',
+                    de_type2_list_use = '1',
+                    de_type2_list_skin = 'main.20.skin.php',
+                    de_type2_list_mod = '4',
+                    de_type2_list_row = '1',
+                    de_type2_img_width = '$simg_width',
+                    de_type2_img_height = '$simg_height',
+                    de_type3_list_use = '1',
+                    de_type3_list_skin = 'main.40.skin.php',
+                    de_type3_list_mod = '4',
+                    de_type3_list_row = '1',
+                    de_type3_img_width = '$simg_width',
+                    de_type3_img_height = '$simg_height',
+                    de_type4_list_use = '1',
+                    de_type4_list_skin = 'main.50.skin.php',
+                    de_type4_list_mod = '5',
+                    de_type4_list_row = '1',
+                    de_type4_img_width = '$simg_width',
+                    de_type4_img_height = '$simg_height',
+                    de_type5_list_use = '1',
+                    de_type5_list_skin = 'main.30.skin.php',
+                    de_type5_list_mod = '4',
+                    de_type5_list_row = '1',
+                    de_type5_img_width = '$simg_width',
+                    de_type5_img_height = '$simg_height',
+                    de_mobile_type1_list_use = '1',
+                    de_mobile_type1_list_skin = 'main.30.skin.php',
+                    de_mobile_type1_list_mod = '2',
+                    de_mobile_type1_list_row = '4',
+                    de_mobile_type1_img_width = '$mimg_width',
+                    de_mobile_type1_img_height = '$mimg_height',
+                    de_mobile_type2_list_use = '1',
+                    de_mobile_type2_list_skin = 'main.10.skin.php',
+                    de_mobile_type2_list_mod = '2',
+                    de_mobile_type2_list_row = '2',
+                    de_mobile_type2_img_width = '$mimg_width',
+                    de_mobile_type2_img_height = '$mimg_height',
+                    de_mobile_type3_list_use = '1',
+                    de_mobile_type3_list_skin = 'main.10.skin.php',
+                    de_mobile_type3_list_mod = '2',
+                    de_mobile_type3_list_row = '4',
+                    de_mobile_type3_img_width = '$mmimg_width',
+                    de_mobile_type3_img_height = '$mmimg_height',
+                    de_mobile_type4_list_use = '1',
+                    de_mobile_type4_list_skin = 'main.20.skin.php',
+                    de_mobile_type4_list_mod = '2',
+                    de_mobile_type4_list_row = '2',
+                    de_mobile_type4_img_width = '$msimg_width',
+                    de_mobile_type4_img_height = '$msimg_height',
+                    de_mobile_type5_list_use = '1',
+                    de_mobile_type5_list_skin = 'main.10.skin.php',
+                    de_mobile_type5_list_mod = '2',
+                    de_mobile_type5_list_row = '2',
+                    de_mobile_type5_img_width = '$mimg_width',
+                    de_mobile_type5_img_height = '$mimg_height',
+                    de_bank_use = '1',
+                    de_bank_account = 'OO은행 12345-67-89012 예금주명',
+                    de_vbank_use = '0',
+                    de_iche_use = '0',
+                    de_card_use = '0',
+                    de_settle_min_point = '5000',
+                    de_settle_max_point = '50000',
+                    de_settle_point_unit = '100',
+                    de_cart_keep_term = '15',
+                    de_card_point = '0',
+                    de_point_days = '7',
+                    de_pg_service = 'kcp',
+                    de_kcp_mid = '',
+                    de_send_cost_case = '차등',
+                    de_send_cost_limit = '20000;30000;40000',
+                    de_send_cost_list = '4000;3000;2000',
+                    de_hope_date_use = '0',
+                    de_hope_date_after = '3',
+                    de_baesong_content = '배송 안내 입력전입니다.',
+                    de_change_content = '교환/반품 안내 입력전입니다.',
+                    de_rel_list_use = '1',
+                    de_rel_list_skin = 'relation.10.skin.php',
+                    de_rel_list_mod = '5',
+                    de_rel_img_width = '$simg_width',
+                    de_rel_img_height = '$simg_height',
+                    de_mobile_rel_list_use = '1',
+                    de_mobile_rel_list_skin = 'relation.10.skin.php',
+                    de_mobile_rel_list_mod = '3',
+                    de_mobile_rel_img_width = '$mimg_width',
+                    de_mobile_rel_img_height = '$mimg_height',
+                    de_search_list_skin = 'list.10.skin.php',
+                    de_search_img_width = '$list_img_width',
+                    de_search_img_height = '$list_img_height',
+                    de_search_list_mod = '5',
+                    de_search_list_row = '5',
+                    de_mobile_search_list_skin = 'list.10.skin.php',
+                    de_mobile_search_img_width = '$mimg_width',
+                    de_mobile_search_img_height = '$mimg_height',
+                    de_mobile_search_list_mod = '2',
+                    de_mobile_search_list_row = '5',
+                    de_listtype_list_skin = 'list.10.skin.php',
+                    de_listtype_img_width = '$list_img_width',
+                    de_listtype_img_height = '$list_img_height',
+                    de_listtype_list_mod = '5',
+                    de_listtype_list_row = '5',
+                    de_mobile_listtype_list_skin = 'list.10.skin.php',
+                    de_mobile_listtype_img_width = '$mimg_width',
+                    de_mobile_listtype_img_height = '$mimg_height',
+                    de_mobile_listtype_list_mod = '2',
+                    de_mobile_listtype_list_row = '5',
+                    de_simg_width = '$mimg_width',
+                    de_simg_height = '$mimg_height',
+                    de_mimg_width = '$mmimg_width',
+                    de_mimg_height = '$mmimg_height',
+                    de_item_use_use = '1',
+                    de_level_sell = '1',
+                    de_code_dup_use = '1',
+                    de_card_test = '1',
+                    de_sms_cont1 = '{이름}님의 회원가입을 축하드립니다.\nID:{회원아이디}\n{회사명}',
+                    de_sms_cont2 = '{이름}님 주문해주셔서 고맙습니다.\n{주문번호}\n{주문금액}원\n{회사명}',
+                    de_sms_cont3 = '{이름}님께서 주문하셨습니다.\n{주문번호}\n{주문금액}원\n{회사명}',
+                    de_sms_cont4 = '{이름}님 입금 감사합니다.\n{입금액}원\n주문번호:\n{주문번호}\n{회사명}',
+                    de_sms_cont5 = '{이름}님 배송합니다.\n택배:{택배회사}\n운송장번호:\n{운송장번호}\n{회사명}'
+                    ";
+    sql_query($sql, true, $dblink);
 }
 ?>
 
@@ -487,6 +502,7 @@ $dir_arr = array (
     $data_path.'/file',
     $data_path.'/log',
     $data_path.'/member',
+    $data_path.'/member_image',
     $data_path.'/session',
     $data_path.'/content',
     $data_path.'/faq',
@@ -560,6 +576,7 @@ fwrite($f, "\$g5['faq_table'] = G5_TABLE_PREFIX.'faq'; // 자주하시는 질문
 fwrite($f, "\$g5['faq_master_table'] = G5_TABLE_PREFIX.'faq_master'; // 자주하시는 질문 마스터 테이블\n");
 fwrite($f, "\$g5['new_win_table'] = G5_TABLE_PREFIX.'new_win'; // 새창 테이블\n");
 fwrite($f, "\$g5['menu_table'] = G5_TABLE_PREFIX.'menu'; // 메뉴관리 테이블\n");
+fwrite($f, "\$g5['social_profile_table'] = G5_TABLE_PREFIX.'member_social_profiles'; // 소셜 로그인 테이블\n");
 
 if($g5_shop_install) {
     fwrite($f, "\n");
@@ -586,6 +603,7 @@ if($g5_shop_install) {
     fwrite($f, "\$g5['g5_shop_personalpay_table'] = G5_SHOP_TABLE_PREFIX.'personalpay'; // 개인결제 정보 테이블\n");
     fwrite($f, "\$g5['g5_shop_order_address_table'] = G5_SHOP_TABLE_PREFIX.'order_address'; // 배송지이력 정보 테이블\n");
     fwrite($f, "\$g5['g5_shop_item_stocksms_table'] = G5_SHOP_TABLE_PREFIX.'item_stocksms'; // 재입고SMS 알림 정보 테이블\n");
+    fwrite($f, "\$g5['g5_shop_post_log_table'] = G5_SHOP_TABLE_PREFIX.'order_post_log'; // 주문요청 로그 테이블\n");
     fwrite($f, "\$g5['g5_shop_order_data_table'] = G5_SHOP_TABLE_PREFIX.'order_data'; // 모바일 결제정보 임시저장 테이블\n");
     fwrite($f, "\$g5['g5_shop_inicis_log_table'] = G5_SHOP_TABLE_PREFIX.'inicis_log'; // 이니시스 모바일 계좌이체 로그 테이블\n");
 }

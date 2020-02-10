@@ -25,7 +25,7 @@ for ($i=0; $row=sql_fetch_array($result); $i++) {
         if ($this->css) {
             echo "<ul id=\"sct_wrap\" class=\"{$this->css}\">\n";
         } else {
-            echo "<ul id=\"sct_wrap\" class=\"sct sct_10\">\n";
+            echo "<ul id=\"sct_wrap\" class=\"srl_10\">\n";
         }
     }
 
@@ -34,10 +34,10 @@ for ($i=0; $row=sql_fetch_array($result); $i++) {
     else
         $li_clear = '';
 
-    echo "<li class=\"sct_li{$li_clear}\"$li_width_style>\n";
+    echo "<li class=\"sct_li{$li_clear}\"$li_width_style><div class=\"li_wr\">\n";
 
     if ($this->href) {
-        echo "<div class=\"sct_img\"><a href=\"{$this->href}{$row['it_id']}\" class=\"sct_a\">\n";
+        echo "<div class=\"sct_img\"><a href=\"{$this->href}{$row['it_id']}\">\n";
     }
 
     if ($this->view_it_img) {
@@ -54,7 +54,7 @@ for ($i=0; $row=sql_fetch_array($result); $i++) {
     }
 
     if ($this->href) {
-        echo "<div class=\"sct_txt\"><a href=\"{$this->href}{$row['it_id']}\" class=\"sct_a\">\n";
+        echo "<a href=\"{$this->href}{$row['it_id']}\" class=\"sct_txt\">\n";
     }
 
     if ($this->view_it_name) {
@@ -62,7 +62,7 @@ for ($i=0; $row=sql_fetch_array($result); $i++) {
     }
 
     if ($this->href) {
-        echo "</a></div>\n";
+        echo "</a>\n";
     }
 
     if ($this->view_it_price) {
@@ -71,7 +71,7 @@ for ($i=0; $row=sql_fetch_array($result); $i++) {
         echo "</div>\n";
     }
 
-    echo "</li>\n";
+    echo "</div></li>\n";
 }
 
 if ($i > 0) echo "</ul>\n";
@@ -79,3 +79,15 @@ if ($i > 0) echo "</ul>\n";
 if($i == 0) echo "<p class=\"sct_noitem\">등록된 관련상품이 없습니다.</p>\n";
 ?>
 <!-- } 상품진열 10 끝 -->
+
+<script>
+$('.srl_10').bxSlider({
+    slideWidth: 200,
+    minSlides: 2,
+    maxSlides: 8,
+    slideMargin: 5,
+    controls: false,
+    infiniteLoop: false
+});
+</script>
+

@@ -45,8 +45,7 @@ else if ($w == "u")
             alert("\'{$member['mb_id']}\' 님께서 수정 할 권한이 없는 상품입니다.");
     }
 
-    $sql = " select * from {$g5['g5_shop_item_table']} where it_id = '$it_id' ";
-    $it = sql_fetch($sql);
+    $it = get_shop_item($it_id);
 
     if(!$it)
         alert('상품정보가 존재하지 않습니다.');
@@ -131,12 +130,6 @@ $pg_anchor ='<ul class="anchor">
 </ul>
 ';
 
-$frm_submit = '<div class="btn_confirm01 btn_confirm">
-    <input type="submit" value="확인" class="btn_submit" accesskey="s">
-    <a href="./itemlist.php?'.$qstr.'">목록</a>';
-if($it_id)
-    $frm_submit .= PHP_EOL.'<a href="'.G5_SHOP_URL.'/item.php?it_id='.$it_id.'" class="btn_frmline">상품보기</a>';
-$frm_submit .= '</div>';
 
 // 쿠폰적용안함 설정 필드 추가
 if(!sql_query(" select it_nocoupon from {$g5['g5_shop_item_table']} limit 1", false)) {
@@ -218,7 +211,6 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
     </div>
 </section>
 
-<?php echo $frm_submit; ?>
 
 <section id="anc_sitfrm_skin">
     <h2 class="h2_frm">스킨설정</h2>
@@ -230,14 +222,11 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
     <div class="tbl_frm01 tbl_wrap">
         <table>
         <caption>스킨설정</caption>
-        <colgroup>
-            <col class="grid_4">
-            <col>
-        </colgroup>
+      
         <tbody>
         <tr>
             <th scope="row"><label for="it_skin">PC용 스킨</label></th>
-            <td colspan="3">
+            <td>
                 <?php echo get_skin_select('shop', 'it_skin', 'it_skin', $it['it_skin']); ?>
             </td>
             <td class="td_grpset">
@@ -249,7 +238,7 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
         </tr>
         <tr>
             <th scope="row"><label for="it_mobile_skin">모바일용 스킨</label></th>
-            <td colspan="3">
+            <td>
                 <?php echo get_mobile_skin_select('shop', 'it_mobile_skin', 'it_mobile_skin', $it['it_mobile_skin']); ?>
             </td>
             <td class="td_grpset">
@@ -264,7 +253,6 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
     </div>
 </section>
 
-<?php echo $frm_submit; ?>
 
 <section id="anc_sitfrm_ini">
     <h2 class="h2_frm">기본정보</h2>
@@ -290,7 +278,7 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
                 <?php } else { ?>
                     <input type="hidden" name="it_id" value="<?php echo $it['it_id']; ?>">
                     <span class="frm_ca_id"><?php echo $it['it_id']; ?></span>
-                    <a href="<?php echo G5_SHOP_URL; ?>/item.php?it_id=<?php echo $it_id; ?>" class="btn_frmline">상품확인</a>
+                    <a href="<?php echo shop_item_url($it_id); ?>" class="btn_frmline">상품확인</a>
                     <a href="<?php echo G5_ADMIN_URL; ?>/shop_admin/itemuselist.php?sfl=a.it_id&amp;stx=<?php echo $it_id; ?>" class="btn_frmline">사용후기</a>
                     <a href="<?php echo G5_ADMIN_URL; ?>/shop_admin/itemqalist.php?sfl=a.it_id&amp;stx=<?php echo $it_id; ?>" class="btn_frmline">상품문의</a>
                 <?php } ?>
@@ -307,7 +295,7 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
             <th scope="row"><label for="it_basic">기본설명</label></th>
             <td>
                 <?php echo help("상품명 하단에 상품에 대한 추가적인 설명이 필요한 경우에 입력합니다. HTML 입력도 가능합니다."); ?>
-                <input type="text" name="it_basic" value="<?php echo get_text($it['it_basic']); ?>" id="it_basic" class="frm_input" size="95">
+                <input type="text" name="it_basic" value="<?php echo get_text(html_purifier($it['it_basic'])); ?>" id="it_basic" class="frm_input" size="95">
             </td>
             <td class="td_grpset">
                 <input type="checkbox" name="chk_ca_it_basic" value="1" id="chk_ca_it_basic">
@@ -451,11 +439,11 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
         </tr>
         <tr>
             <th scope="row">상품설명</th>
-            <td colspan="2"> <?php echo editor_html('it_explan', get_text($it['it_explan'], 0)); ?></td>
+            <td colspan="2"> <?php echo editor_html('it_explan', get_text(html_purifier($it['it_explan']), 0)); ?></td>
         </tr>
         <tr>
             <th scope="row">모바일 상품설명</th>
-            <td colspan="2"> <?php echo editor_html('it_mobile_explan', get_text($it['it_mobile_explan'], 0)); ?></td>
+            <td colspan="2"> <?php echo editor_html('it_mobile_explan', get_text(html_purifier($it['it_mobile_explan']), 0)); ?></td>
         </tr>
         <tr>
             <th scope="row"><label for="it_sell_email">판매자 e-mail</label></th>
@@ -472,7 +460,7 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
         </tr>
         <tr>
             <th scope="row"><label for="it_shop_memo">상점메모</label></th>
-            <td><textarea name="it_shop_memo" id="it_shop_memo"><?php echo $it['it_shop_memo']; ?></textarea></td>
+            <td><textarea name="it_shop_memo" id="it_shop_memo"><?php echo html_purifier($it['it_shop_memo']); ?></textarea></td>
             <td class="td_grpset">
                 <input type="checkbox" name="chk_ca_it_shop_memo" value="1" id="chk_ca_it_shop_memo">
                 <label for="chk_ca_it_shop_memo">분류적용</label>
@@ -485,7 +473,6 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
     </div>
 </section>
 
-<?php echo $frm_submit; ?>
 
 <section id="anc_sitfrm_compact">
     <h2 class="h2_frm">상품요약정보</h2>
@@ -511,7 +498,6 @@ if(!sql_query(" select it_skin from {$g5['g5_shop_item_table']} limit 1", false)
     <div id="sit_compact_fields"><?php include_once(G5_ADMIN_PATH.'/shop_admin/iteminfo.php'); ?></div>
 </section>
 
-<?php echo $frm_submit; ?>
 
 <script>
 $(function(){
@@ -1112,7 +1098,6 @@ $(function(){
     </div>
 </section>
 
-<?php echo $frm_submit; ?>
 
 <section id="anc_sitfrm_sendcost">
     <h2 class="h2_frm">배송비</h2>
@@ -1269,7 +1254,6 @@ $(function(){
     </script>
 </section>
 
-<?php echo $frm_submit; ?>
 
 <section id="anc_sitfrm_img">
     <h2 class="h2_frm">이미지</h2>
@@ -1290,15 +1274,17 @@ $(function(){
                 <input type="file" name="it_img<?php echo $i; ?>" id="it_img<?php echo $i; ?>">
                 <?php
                 $it_img = G5_DATA_PATH.'/item/'.$it['it_img'.$i];
-                if(is_file($it_img) && $it['it_img'.$i]) {
-                    $size = @getimagesize($it_img);
+                $it_img_exists = run_replace('shop_item_image_exists', (is_file($it_img) && file_exists($it_img)), $it, $i);
+
+                if($it_img_exists) {
                     $thumb = get_it_thumbnail($it['it_img'.$i], 25, 25);
+                    $img_tag = run_replace('shop_item_image_tag', '<img src="'.G5_DATA_URL.'/item/'.$it['it_img'.$i].'" class="shop_item_preview_image" >', $it, $i);
                 ?>
                 <label for="it_img<?php echo $i; ?>_del"><span class="sound_only">이미지 <?php echo $i; ?> </span>파일삭제</label>
                 <input type="checkbox" name="it_img<?php echo $i; ?>_del" id="it_img<?php echo $i; ?>_del" value="1">
                 <span class="sit_wimg_limg<?php echo $i; ?>"><?php echo $thumb; ?></span>
                 <div id="limg<?php echo $i; ?>" class="banner_or_img">
-                    <img src="<?php echo G5_DATA_URL; ?>/item/<?php echo $it['it_img'.$i]; ?>" alt="" width="<?php echo $size[0]; ?>" height="<?php echo $size[1]; ?>">
+                    <?php echo $img_tag; ?>
                     <button type="button" class="sit_wimg_close">닫기</button>
                 </div>
                 <script>
@@ -1313,7 +1299,6 @@ $(function(){
     </div>
 </section>
 
-<?php echo $frm_submit; ?>
 
 <section id="anc_sitfrm_relation" class="srel">
     <h2 class="h2_frm">관련상품</h2>
@@ -1464,7 +1449,6 @@ $(function(){
 
 </section>
 
-<?php echo $frm_submit; ?>
 
 <section id="anc_sitfrm_event" class="srel">
     <h2 class="h2_frm">관련이벤트</h2>
@@ -1579,7 +1563,6 @@ $(function(){
 
 </section>
 
-<?php echo $frm_submit; ?>
 
 <section id="anc_sitfrm_optional">
     <h2 class="h2_frm">상세설명설정</h2>
@@ -1596,7 +1579,7 @@ $(function(){
         <tbody>
         <tr>
             <th scope="row">상품상단내용</th>
-            <td><?php echo help("상품상세설명 페이지 상단에 출력하는 HTML 내용입니다."); ?><?php echo editor_html('it_head_html', get_text($it['it_head_html'], 0)); ?></td>
+            <td><?php echo help("상품상세설명 페이지 상단에 출력하는 HTML 내용입니다."); ?><?php echo editor_html('it_head_html', get_text(html_purifier($it['it_head_html']), 0)); ?></td>
             <td class="td_grpset">
                 <input type="checkbox" name="chk_ca_it_head_html" value="1" id="chk_ca_it_head_html">
                 <label for="chk_ca_it_head_html">분류적용</label>
@@ -1606,7 +1589,7 @@ $(function(){
         </tr>
         <tr>
             <th scope="row">상품하단내용</th>
-            <td><?php echo help("상품상세설명 페이지 하단에 출력하는 HTML 내용입니다."); ?><?php echo editor_html('it_tail_html', get_text($it['it_tail_html'], 0)); ?></td>
+            <td><?php echo help("상품상세설명 페이지 하단에 출력하는 HTML 내용입니다."); ?><?php echo editor_html('it_tail_html', get_text(html_purifier($it['it_tail_html']), 0)); ?></td>
             <td class="td_grpset">
                 <input type="checkbox" name="chk_ca_it_tail_html" value="1" id="chk_ca_it_tail_html">
                 <label for="chk_ca_it_tail_html">분류적용</label>
@@ -1616,7 +1599,7 @@ $(function(){
         </tr>
         <tr>
             <th scope="row">모바일 상품상단내용</th>
-            <td><?php echo help("모바일 상품상세설명 페이지 상단에 출력하는 HTML 내용입니다."); ?><?php echo editor_html('it_mobile_head_html', get_text($it['it_mobile_head_html'], 0)); ?></td>
+            <td><?php echo help("모바일 상품상세설명 페이지 상단에 출력하는 HTML 내용입니다."); ?><?php echo editor_html('it_mobile_head_html', get_text(html_purifier($it['it_mobile_head_html']), 0)); ?></td>
             <td class="td_grpset">
                 <input type="checkbox" name="chk_ca_it_mobile_head_html" value="1" id="chk_ca_it_mobile_head_html">
                 <label for="chk_ca_it_mobile_head_html">분류적용</label>
@@ -1626,7 +1609,7 @@ $(function(){
         </tr>
         <tr>
             <th scope="row">모바일 상품하단내용</th>
-            <td><?php echo help("모바일 상품상세설명 페이지 하단에 출력하는 HTML 내용입니다."); ?><?php echo editor_html('it_mobile_tail_html', get_text($it['it_mobile_tail_html'], 0)); ?></td>
+            <td><?php echo help("모바일 상품상세설명 페이지 하단에 출력하는 HTML 내용입니다."); ?><?php echo editor_html('it_mobile_tail_html', get_text(html_purifier($it['it_mobile_tail_html']), 0)); ?></td>
             <td class="td_grpset">
                 <input type="checkbox" name="chk_ca_it_mobile_tail_html" value="1" id="chk_ca_it_mobile_tail_html">
                 <label for="chk_ca_it_mobile_tail_html">분류적용</label>
@@ -1639,7 +1622,6 @@ $(function(){
     </div>
 </section>
 
-<?php echo $frm_submit; ?>
 
 <section id="anc_sitfrm_extra">
     <h2>여분필드 설정</h2>
@@ -1691,7 +1673,11 @@ $(function(){
     </div>
 </section>
 
-<?php echo $frm_submit; ?>
+<div class="btn_fixed_top">
+    <a href="./itemlist.php?<?php echo $qstr; ?>" class="btn btn_02">목록</a>
+    <a href="<?php echo shop_item_url($it_id); ?>" class="btn_02  btn">상품보기</a>
+    <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
+</div>
 </form>
 
 

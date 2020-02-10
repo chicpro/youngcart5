@@ -86,7 +86,7 @@ if(!sql_query(" select pp_cash from {$g5['g5_shop_personalpay_table']} limit 1 "
     <section id="anc_spp_info">
         <h2 class="h2_frm">주문 정보</h2>
         <?php if($popup != 'yes') echo $pg_anchor; ?>
-        <div class="local_desc02 local_desc">
+        <div class="local_desc">
             <p>주문 관련 기본 정보입니다.</p>
         </div>
 
@@ -112,28 +112,18 @@ if(!sql_query(" select pp_cash from {$g5['g5_shop_personalpay_table']} limit 1 "
             </tr>
             <tr>
                 <th scope="row"><label for="pp_content">내용</label></th>
-                <td><textarea name="pp_content" id="pp_content" rows="8"><?php echo $pp['pp_content']; ?></textarea></td>
+                <td><textarea name="pp_content" id="pp_content" rows="8"><?php echo html_purifier($pp['pp_content']); ?></textarea></td>
             </tr>
             </tbody>
             </table>
         </div>
     </section>
 
-    <div class="btn_confirm01 btn_confirm">
-        <input type="submit" value="확인" class="btn_submit" accesskey="s">
-        <?php if($popup == 'yes') { ?>
-        <button type="button" onclick="self.close();">닫기</button>
-        <?php } else { ?>
-        <a href="./personalpaylist.php?<?php echo $qstr; ?>">목록</a>
-        <?php } ?>
-        <?php if($w == 'u') { ?>
-        <a href="./personalpayformupdate.php?w=d&amp;pp_id=<?php echo $pp['pp_id']; ?>" onclick="return delete_confirm(this);">삭제</a>
-        <?php } ?>
-    </div>
+
 
     <?php if($popup != 'yes') { ?>
     <section id="anc_spp_pay" class="cbox">
-        <h2>결제 정보</h2>
+        <h2 class="h2_frm">결제 정보</h2>
         <?php echo $pg_anchor; ?>
         <div class="local_desc02 local_desc">
             <p>결제 관련 정보입니다.</p>
@@ -246,19 +236,22 @@ if(!sql_query(" select pp_cash from {$g5['g5_shop_personalpay_table']} limit 1 "
             </table>
         </div>
     </section>
+    <?php } ?>
 
-    <div class="btn_confirm01 btn_confirm">
-        <input type="submit" value="확인" class="btn_submit" accesskey="s">
+    <?php
+    $btn_class = (isset($popup) && $popup === 'yes') ? 'btn_win' : 'btn_fixed_top';
+    ?>
+    <div class="<?php echo $btn_class; ?>">
+        <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
         <?php if($popup == 'yes') { ?>
-        <button type="button" onclick="self.close();">닫기</button>
+        <button type="button" onclick="self.close();" class="btn btn_02">닫기</button>
         <?php } else { ?>
-        <a href="./personalpaylist.php?<?php echo $qstr; ?>">목록</a>
+        <a href="./personalpaylist.php?<?php echo $qstr; ?>" class="btn btn_02">목록</a>
         <?php } ?>
         <?php if($w == 'u') { ?>
-        <a href="./personalpayformupdate.php?w=d&amp;pp_id=<?php echo $pp['pp_id']; ?>" onclick="return delete_confirm(this);">삭제</a>
+        <a href="./personalpayformupdate.php?w=d&amp;pp_id=<?php echo $pp['pp_id']; ?>" onclick="return delete_confirm(this);" class="btn btn_02">삭제</a>
         <?php } ?>
     </div>
-    <?php } ?>
 
 <?php echo $wrp_tag_end; ?>
 </form>

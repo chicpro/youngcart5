@@ -1,6 +1,8 @@
 <?php
 include_once('./_common.php');
 
+define('IS_SHOP_SEARCH', true);
+
 if (G5_IS_MOBILE) {
     include_once(G5_MSHOP_PATH.'/search.php');
     return;
@@ -133,6 +135,7 @@ while($row = sql_fetch_array($result)){
     $categorys[] = $row;
 }
 
+$q = get_text($q);
 $search_skin = G5_SHOP_SKIN_PATH.'/search.skin.php';
 
 if(!file_exists($search_skin)) {

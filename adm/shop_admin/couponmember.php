@@ -12,8 +12,10 @@ include_once(G5_PATH.'/head.sub.php');
 $sql_common = " from {$g5['member_table']} ";
 $sql_where = " where mb_id <> '{$config['cf_admin']}' and mb_leave_date = '' and mb_intercept_date ='' ";
 
-if($_GET['mb_name'])
-    $sql_where .= " and mb_name like '%$mb_name%' ";
+if($mb_name){
+    $mb_name = preg_replace('/\!\?\*$#<>()\[\]\{\}/i', '', strip_tags($mb_name));
+    $sql_where .= " and mb_name like '%".sql_real_escape_string($mb_name)."%' ";
+}
 
 // 테이블의 전체 레코드수만 얻음
 $sql = " select count(*) as cnt " . $sql_common . $sql_where;
@@ -32,7 +34,7 @@ $sql = " select mb_id, mb_name
             limit $from_record, $rows ";
 $result = sql_query($sql);
 
-$qstr1 = 'mb_name='.$_GET['mb_name'];
+$qstr1 = 'mb_name='.urlencode($mb_name);
 ?>
 
 <div id="sch_member_frm" class="new_win scp_new_win">
@@ -41,10 +43,10 @@ $qstr1 = 'mb_name='.$_GET['mb_name'];
     <form name="fmember" method="get">
     <div id="scp_list_find">
         <label for="mb_name">회원이름</label>
-        <input type="text" name="mb_name" id="mb_name" value="<?php echo $mb_name; ?>" class="frm_input required" required size="20">
+        <input type="text" name="mb_name" id="mb_name" value="<?php echo get_text($mb_name); ?>" class="frm_input required" required size="20">
         <input type="submit" value="검색" class="btn_frmline">
     </div>
-    <div class="tbl_head01 tbl_wrap">
+    <div class="tbl_head01 tbl_wrap new_win_con">
         <table>
         <caption>검색결과</caption>
         <thead>
@@ -60,8 +62,8 @@ $qstr1 = 'mb_name='.$_GET['mb_name'];
         ?>
         <tr>
             <td class="td_mbname"><?php echo get_text($row['mb_name']); ?></td>
-            <td><?php echo $row['mb_id']; ?></td>
-            <td class="scp_find_select"><button type="button" class="btn_frmline" onclick="sel_member_id('<?php echo $row['mb_id']; ?>');">선택</button></td>
+            <td class="td_left"><?php echo $row['mb_id']; ?></td>
+            <td class="scp_find_select td_mng td_mng_s"><button type="button" class="btn btn_03" onclick="sel_member_id('<?php echo $row['mb_id']; ?>');">선택</button></td>
         </tr>
         <?php
         }
@@ -76,8 +78,8 @@ $qstr1 = 'mb_name='.$_GET['mb_name'];
 
     <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr1.'&amp;page='); ?>
 
-    <div class="btn_confirm01 btn_confirm">
-        <button type="button" onclick="window.close();">닫기</button>
+    <div class="btn_confirm01 btn_confirm win_btn">
+        <button type="button" onclick="window.close();" class="btn_close btn">닫기</button>
     </div>
 </div>
 

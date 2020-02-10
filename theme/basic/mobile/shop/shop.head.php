@@ -17,52 +17,32 @@ include_once(G5_LIB_PATH.'/latest.lib.php');
     <?php if(defined('_INDEX_')) { // index에서만 실행
         include G5_MOBILE_PATH.'/newwin.inc.php'; // 팝업레이어
     } ?>
-    <ul id="hd_tnb">
-        <?php if ($is_member) { ?>
-        <?php if ($is_admin) {  ?>
-        <li><a href="<?php echo G5_ADMIN_URL ?>/shop_admin/"><b>관리자</b></a></li>
-        <?php } else { ?>
-        <li><a href="<?php echo G5_BBS_URL; ?>/member_confirm.php?url=register_form.php">정보수정</a></li>
-        <?php } ?>
-        <li><a href="<?php echo G5_BBS_URL; ?>/logout.php?url=shop">LOGOUT</a></li>
-        <?php } else { ?>
-        <li><a href="<?php echo G5_BBS_URL; ?>/login.php?url=<?php echo $urlencode; ?>">LOGIN</a></li>
-        <li><a href="<?php echo G5_BBS_URL ?>/register.php" id="snb_join">JOIN</a></li>
-        <?php } ?>
-        <li><a href="<?php echo G5_SHOP_URL; ?>/mypage.php">MY PAGE</a></li>
-        <li><a href="<?php echo G5_SHOP_URL; ?>/couponzone.php">쿠폰존</a></li>
-        <li><a href="<?php echo G5_SHOP_URL; ?>/cart.php" class="tnb_cart"><span></span>CART</a></li>
 
+    <div id="hd_wr">
+        <div id="logo"><a href="<?php echo G5_SHOP_URL; ?>/"><img src="<?php echo G5_DATA_URL; ?>/common/mobile_logo_img" alt="<?php echo $config['cf_title']; ?> 메인"></a></div>
+        <div id="hd_btn">
+            <button type="button" id="btn_hdcate"><i class="fa fa-bars"></i><span class="sound_only">분류</span></button>
+            <button type="button" id="btn_hdsch"><i class="fa fa-search"></i><span class="sound_only">검색열기</span></button>
+            <a href="<?php echo G5_SHOP_URL; ?>/mypage.php" id="btn_hduser"><i class="fa fa-user"></i><span class="sound_only">마이페이지</span></a>
+            <a href="<?php echo G5_SHOP_URL; ?>/cart.php" id="btn_hdcart"><i class="fa fa-shopping-cart"></i><span class="sound_only">장바구니</span><span class="cart-count"><?php echo get_boxcart_datas_count(); ?></span></a>
 
-    </ul>
-    <div id="logo"><a href="<?php echo G5_SHOP_URL; ?>/"><img src="<?php echo G5_DATA_URL; ?>/common/mobile_logo_img" alt="<?php echo $config['cf_title']; ?> 메인"></a></div>
-
-    <?php include_once(G5_THEME_MSHOP_PATH.'/category.php'); // 분류 ?>
-
-    <button type="button" id="hd_sch_open">검색<span class="sound_only"> 열기</span></button>
+        </div>
+    </div>
 
     <form name="frmsearch1" action="<?php echo G5_SHOP_URL; ?>/search.php" onsubmit="return search_submit(this);">
     <aside id="hd_sch">
         <div class="sch_inner">
             <h2>상품 검색</h2>
             <label for="sch_str" class="sound_only">상품명<strong class="sound_only"> 필수</strong></label>
-            <input type="text" name="q" value="<?php echo stripslashes(get_text(get_search_string($q))); ?>" id="sch_str" required class="frm_input">
-            <input type="submit" value="검색" class="btn_submit">
-            <button type="button" class="pop_close"><span class="sound_only">검색 </span>닫기</button>
+            <input type="text" name="q" value="<?php echo stripslashes(get_text(get_search_string($q))); ?>" id="sch_str" required class="frm_input" placeholder="검색어를 입력해주세요">
+            <button type="submit" value="검색" class="sch_submit"><i class="fa fa-search" aria-hidden="true"></i></button>
         </div>
+        <button type="button" class="btn_close"><i class="fa fa-times"></i><span class="sound_only">닫기</span></button>
+
     </aside>
     </form>
-    <script>
-        $(function (){
-        var $hd_sch = $("#hd_sch");
-        $("#hd_sch_open").click(function(){
-            $hd_sch.css("display","block");
-        });
-        $("#hd_sch .pop_close").click(function(){
-            $hd_sch.css("display","none");
-        });
-    });
 
+    <script>
     function search_submit(f) {
         if (f.q.value.length < 2) {
             alert("검색어는 두글자 이상 입력하십시오.");
@@ -73,33 +53,65 @@ include_once(G5_LIB_PATH.'/latest.lib.php');
 
         return true;
     }
+    </script>     
 
-    </script>
+    <?php include_once(G5_THEME_MSHOP_PATH.'/category.php'); // 분류 ?>
 
-    <ul id="hd_mb">
-        <li><a href="<?php echo G5_BBS_URL; ?>/faq.php">FAQ</a></li>
-        <li><a href="<?php echo G5_BBS_URL; ?>/qalist.php">1:1문의</a></li>
-        <?php
-        if(G5_COMMUNITY_USE) {
-            $com_href = G5_URL;
-            $com_name = '커뮤니티';
-        } else {
-            if(!preg_match('#'.G5_SHOP_DIR.'/#', $_SERVER['SCRIPT_NAME'])) {
-                $com_href = G5_SHOP_URL;
-                $com_name = '쇼핑몰';
+
+    <script>
+    jQuery(function($){
+        $( document ).ready( function() {
+            
+            function catetory_menu_fn( is_open ){
+                var $cagegory = $("#category");
+
+                if( is_open ){
+                    $cagegory.show();
+                    $("body").addClass("is_hidden");
+                } else {
+                    $cagegory.hide();
+                    $("body").removeClass("is_hidden");
+                }
             }
-        }
 
-        if($com_href && $com_name) {
-        ?>
-        <li><a href="<?php echo $com_href; ?>/"><?php echo $com_name; ?></a></li>
-        <?php } ?>
-        <li><a href="<?php echo G5_SHOP_URL; ?>/personalpay.php">개인결제</a></li>
-        <?php if(!$com_href || !$com_name) { ?>
-        <li><a href="<?php echo G5_SHOP_URL; ?>/listtype.php?type=5">세일상품</a></li>
-        <?php } ?>
-    </ul>
+            $(document).on("click", "#btn_hdcate", function(e) {
+                // 오픈
+                catetory_menu_fn(1);
+            }).on("click", ".menu_close", function(e) {
+                // 숨김
+                catetory_menu_fn(0);
+            }).on("click", ".cate_bg", function(e) {
+                // 숨김
+                catetory_menu_fn(0);
+            });
+
+            $("#btn_hdsch").on("click", function() {
+                $("#hd_sch").show();
+            });
+
+            $("#hd_sch .btn_close").on("click", function() {
+                $("#hd_sch").hide();
+            });
+            
+            //타이틀 영역고정
+            var jbOffset = $( '#container').offset();
+            $( window ).scroll( function() {
+                if ( $( document ).scrollTop() > jbOffset.top ) {
+                    $( '#container').addClass( 'fixed' );
+                }
+                else {
+                    $( '#container').removeClass( 'fixed' );
+                }
+            });
+        });
+    });
+   </script>
 </header>
-
-<div id="container">
-    <?php if ((!$bo_table || $w == 's' ) && !defined('_INDEX_')) { ?><h1 id="container_title"><?php echo $g5['title'] ?></h1><?php } ?>
+<?php
+    $container_class = array();
+    if( defined('G5_IS_COMMUNITY_PAGE') && G5_IS_COMMUNITY_PAGE ){
+        $container_class[] = 'is_community';
+    }
+?>
+<div id="container" class="<?php echo implode(' ', $container_class); ?>">
+    <?php if ((!$bo_table || $w == 's' ) && !defined('_INDEX_')) { ?><h1 id="container_title"><a href="javascript:history.back()" class="btn_back"><i class="fa fa-chevron-left" aria-hidden="true"></i><span class="sound_only">뒤로</span></a> <?php echo $g5['title'] ?></h1><?php } ?>

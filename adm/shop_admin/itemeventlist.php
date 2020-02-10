@@ -6,9 +6,11 @@ auth_check($auth[$sub_menu], "r");
 
 $ev_id = preg_replace('/[^0-9]/', '', $ev_id);
 $sort1 = strip_tags($sort1);
-$sel_field = strip_tags($sel_field);
+if (!in_array($sort1, array('a.it_id', 'it_name'))) $sort1 = "a.it_id";
+$sel_field = in_array($sel_field, array('a.it_id', 'it_name')) ? strip_tags($sel_field) : 'it_name';
 $sel_ca_id = get_search_string($sel_ca_id);
 $search = get_search_string($search);
+$ev_title = isset($ev_title) ? strip_tags($ev_title) : '';
 
 $g5['title'] = '이벤트일괄처리';
 include_once (G5_ADMIN_PATH.'/admin.head.php');
@@ -24,10 +26,6 @@ if ($search != "") {
 
 if ($sel_ca_id != "") {
     $sql_search .= " $where ca_id like '$sel_ca_id%' ";
-}
-
-if ($sel_field == "")  {
-    $sel_field = "it_name";
 }
 
 $sql_common = " from {$g5['g5_shop_item_table']} a
@@ -72,7 +70,8 @@ if($ev_id) {
 ?>
 
 <div class="local_ov01 local_ov">
-    전체 이벤트 <?php echo $total_count; ?>건
+    <?php echo $listall; ?>
+    <span class="btn_ov01"><span class="ov_txt">전체 이벤트</span><span class="ov_num"> <?php echo $total_count; ?>건</span></span>  
 </div>
 
 <form name="flist" class="local_sch01 local_sch" autocomplete="off">
@@ -96,7 +95,6 @@ if($ev_id) {
 <form name="flist" class="local_sch01 local_sch" autocomplete="off">
 <input type="hidden" name="page" value="<?php echo $page; ?>">
 <input type="hidden" name="ev_id" value="<?php echo $ev_id; ?>">
-<?php echo $listall; ?>
 
 <label for="sel_ca_id" class="sound_only">분류선택</label>
 <select name="sel_ca_id" id="sel_ca_id">
@@ -151,7 +149,7 @@ if($ev_id) {
     </thead>
     <tbody>
     <?php for ($i=0; $row=sql_fetch_array($result); $i++) {
-        $href = G5_SHOP_URL.'/item.php?it_id='.$row['it_id'];
+        $href = shop_item_url($row['it_id']);
 
         $sql = " select ev_id from {$g5['g5_shop_event_item_table']}
                   where it_id = '{$row['it_id']}'
@@ -162,13 +160,13 @@ if($ev_id) {
     ?>
 
     <tr class="<?php echo $bg; ?>">
-        <td class="td_chk">
+        <td class="td_chk2">
             <input type="hidden" name="it_id[<?php echo $i; ?>]" value="<?php echo $row['it_id']; ?>">
             <label for="ev_chk_<?php echo $i; ?>" class="sound_only">이벤트 사용</label>
             <input type="checkbox" name="ev_chk[<?php echo $i; ?>]" value="1" id="ev_chk_<?php echo $i; ?>" <?php echo ($row['ev_id'] ? "checked" : ""); ?>>
         </td>
         <td class="td_num"><a href="<?php echo $href; ?>"><?php echo $row['it_id']; ?></a></td>
-        <td><a href="<?php echo $href; ?>"><?php echo get_it_image($row['it_id'], 50, 50); ?> <?php echo cut_str(stripslashes($row['it_name']), 60, "&#133"); ?></a></td>
+        <td class="td_left"><a href="<?php echo $href; ?>"><?php echo get_it_image($row['it_id'], 50, 50); ?> <?php echo cut_str(stripslashes($row['it_name']), 60, "&#133"); ?></a></td>
     </tr>
 
     <?php
@@ -192,8 +190,8 @@ if($ev_id) {
         <?php } ?>
     </p>
 </div>
-<div class="btn_confirm01 btn_confirm">
-    <input type="submit" value="일괄수정" class="btn_submit" accesskey="s">
+<div class="btn_fixed_top">
+    <input type="submit" value="일괄수정" class="btn_submit btn" accesskey="s">
 </div>
 
 </form>

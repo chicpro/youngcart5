@@ -2,6 +2,8 @@
 $sub_menu = '400810';
 include_once('./_common.php');
 
+$cz_id = (int) $cz_id;
+
 auth_check($auth[$sub_menu], "w");
 
 $g5['title'] = '쿠폰존 쿠폰관리';
@@ -176,9 +178,9 @@ include_once(G5_PLUGIN_PATH.'/jquery-ui/datepicker.php');
     </table>
 </div>
 
-<div class="btn_confirm01 btn_confirm">
-    <input type="submit" value="확인" class="btn_submit" accesskey="s">
-    <a href="./couponzonelist.php?<?php echo $qstr; ?>">목록</a>
+<div class="btn_fixed_top">
+    <a href="./couponzonelist.php?<?php echo $qstr; ?>" class="btn_02 btn">목록</a>
+    <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
 </div>
 
 </form>

@@ -5,10 +5,7 @@ $g5['title'] = '상품 재입고 알림 (SMS)';
 include_once(G5_PATH.'/head.sub.php');
 
 // 상품정보
-$sql = " select it_id, it_name, it_soldout, it_stock_sms
-            from {$g5['g5_shop_item_table']}
-            where it_id = '$it_id' ";
-$it = sql_fetch($sql);
+$it = get_shop_item($it_id, true);
 
 if(!$it['it_id'])
     alert_close('상품정보가 존재하지 않습니다.');
@@ -18,6 +15,11 @@ if(!$it['it_soldout'] || !$it['it_stock_sms'])
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
 add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+
+if (G5_IS_MOBILE) {
+    add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">', 0);
+
+}
 ?>
 
 <div id="sit_sms_new" class="new_win">
@@ -26,35 +28,30 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
     <form name="fstocksms" method="post" action="<?php echo G5_HTTPS_SHOP_URL; ?>/itemstocksmsupdate.php" onsubmit="return fstocksms_submit(this);"  autocomplete="off">
     <input type="hidden" name="it_id" value="<?php echo $it_id; ?>">
 
-    <div class="tbl_frm01 tbl_wrap">
-        <table>
-         <colgroup>
-            <col class="grid_4">
-            <col>
-        </colgroup>
-        <tbody>
-        <tr>
-            <th scope="row">상품</th>
-            <td><?php echo $it['it_name']; ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><label for="ss_hp">휴대폰번호<strong class="sound_only"> 필수</strong></label></th>
-            <td><input type="text" name="ss_hp" value="<?php echo $member['mb_hp']; ?>" id="ss_hp" required class="required frm_input"></td>
-        </tr>
-        <tr>
-            <th scope="row"><strong>개인정보처리방침안내</strong></th>
-            <td><textarea readonly><?php echo get_text($config['cf_privacy']) ?></textarea></td>
-        </tr>
-        </tbody>
-        </table>
-    </div>
-    <div id="sms_agree" class="win_desc">
-        <label for="agree">개인정보처리방침안내의 내용에 동의합니다.</label>
-        <input type="checkbox" name="agree" value="1" id="agree">
-    </div>
-    <div class="win_btn">
-        <input type="submit" value="확인" class="btn_submit">
-        <button type="button" onclick="window.close();">닫기</button>
+    <div class="form_01">
+        <ul>
+            <li class="prd_name">
+                <?php echo $it['it_name']; ?>
+            </li>
+            <li>
+                <label for="ss_hp" class="sound_only">휴대폰번호<strong> 필수</strong></label>
+                <input type="text" name="ss_hp" value="<?php echo $member['mb_hp']; ?>" id="ss_hp" required class="required frm_input full_input" placeholder="휴대폰번호">
+            </li>
+            <li>
+                <strong>개인정보처리방침안내</strong>
+                <textarea readonly><?php echo get_text($config['cf_privacy']) ?></textarea>
+            </li>
+        </ul>
+        
+        <div id="sms_agree" class="chk_box">
+            <input type="checkbox" name="agree" value="1" id="agree" class="selec_chk">
+            <label for="agree"><span></span>개인정보처리방침안내의 내용에 동의합니다.</label>
+        </div>
+        
+        <div class="win_btn">
+            <button type="submit" class="btn_submit">확인</button>
+            <button type="button" onclick="window.close();" class="btn_close">닫기</button>
+        </div>
     </div>
     </form>
 </div>

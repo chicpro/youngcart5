@@ -2,6 +2,8 @@
 $sub_menu = '400300';
 include_once('./_common.php');
 
+$ca_id = preg_replace('/[^0-9a-z]/i', '', $ca_id);
+
 auth_check($auth[$sub_menu], "r");
 
 $g5['title'] = '상품 복사';
@@ -17,7 +19,7 @@ include_once(G5_PATH.'/head.sub.php');
         <input type="text" name="new_it_id" value="<?php echo time(); ?>" id="new_it_id" class="frm_input" maxlength="20">
     </div>
 
-    <div class="btn_confirm01 btn_confirm">
+    <div class="win_btn btn_confirm">
         <input type="button" value="복사하기" class="btn_submit" onclick="_copy('itemcopyupdate.php?it_id=<?php echo $it_id; ?>&amp;ca_id=<?php echo $ca_id; ?>');">
         <button type="button" onclick="self.close();">창닫기</button>
     </div>

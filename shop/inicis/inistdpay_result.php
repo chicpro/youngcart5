@@ -85,7 +85,7 @@ try {
             $resultMap = json_decode($authResultString, true);
 
             $tid = $resultMap['tid'];
-            $oid = $resultMap['MOID'];
+            $oid = preg_replace('/[^A-Za-z0-9\-_]/', '', $resultMap['MOID']);
 
             /*************************  결제보안 추가 2016-05-18 START ****************************/
             $secureMap['mid']       = $mid;                         //mid
@@ -197,7 +197,12 @@ try {
         echo "<br/>";
         echo "####인증실패####";
 
-        echo "<pre>" . var_dump($_REQUEST) . "</pre>";
+        ob_start();
+        var_dump($_REQUEST);
+        $debug_msg = ob_get_contents();
+        ob_clean();
+
+        echo "<pre>" . strip_tags($debug_msg) . "</pre>";
     }
 } catch (Exception $e) {
     $s = $e->getMessage() . ' (오류코드:' . $e->getCode() . ')';

@@ -13,121 +13,133 @@ function get_mshop_category($ca_id, $len)
 
     return $sql;
 }
+
+$mshop_categories = get_shop_category_array(true);
 ?>
 
-<button type="button" id="hd_ct">분류</button>
-<div id="category">
-    <div class="ct_wr">
-        <ul class="cate_tab">
-            <li><a href="#" class="ct_tab_sl">CATEGORY</a></li>
-            <li><a href="<?php echo G5_SHOP_URL; ?>/mypage.php">MY PAGE</a></li>
-            <li><a href="<?php echo G5_SHOP_URL; ?>/cart.php">CART</a></li>
-        </ul>
-        <?php
-        $mshop_ca_href = G5_SHOP_URL.'/list.php?ca_id=';
-        $mshop_ca_res1 = sql_query(get_mshop_category('', 2));
-        for($i=0; $mshop_ca_row1=sql_fetch_array($mshop_ca_res1); $i++) {
-            if($i == 0)
-                echo '<ul class="cate">'.PHP_EOL;
-        ?>
-            <li>
-                <a href="<?php echo $mshop_ca_href.$mshop_ca_row1['ca_id']; ?>"><?php echo get_text($mshop_ca_row1['ca_name']); ?></a>
-                <?php
-                $mshop_ca_res2 = sql_query(get_mshop_category($mshop_ca_row1['ca_id'], 4));
-                if(sql_num_rows($mshop_ca_res2))
-                    echo '<button class="sub_ct_toggle ct_op">'.get_text($mshop_ca_row1['ca_name']).' 하위분류 열기</button>'.PHP_EOL;
+<div id="category" class="menu">
+    <div class="menu_wr">
+        <?php echo outlogin('shop_basic'); // 외부 로그인 ?>
 
-                for($j=0; $mshop_ca_row2=sql_fetch_array($mshop_ca_res2); $j++) {
-                    if($j == 0)
-                        echo '<ul class="sub_cate sub_cate1">'.PHP_EOL;
-                ?>
-                    <li>
-                        <a href="<?php echo $mshop_ca_href.$mshop_ca_row2['ca_id']; ?>">- <?php echo get_text($mshop_ca_row2['ca_name']); ?></a>
-                        <?php
-                        $mshop_ca_res3 = sql_query(get_mshop_category($mshop_ca_row2['ca_id'], 6));
-                        if(sql_num_rows($mshop_ca_res3))
-                            echo '<button type="button" class="sub_ct_toggle ct_op">'.get_text($mshop_ca_row2['ca_name']).' 하위분류 열기</button>'.PHP_EOL;
+        <div class="content">
+            <?php
+            $i = 0;
+            foreach($mshop_categories as $cate1){
+                if( empty($cate1) ) continue;
 
-                        for($k=0; $mshop_ca_row3=sql_fetch_array($mshop_ca_res3); $k++) {
-                            if($k == 0)
-                                echo '<ul class="sub_cate sub_cate2">'.PHP_EOL;
-                        ?>
-                            <li>
-                                <a href="<?php echo $mshop_ca_href.$mshop_ca_row3['ca_id']; ?>">- <?php echo get_text($mshop_ca_row3['ca_name']); ?></a>
-                                <?php
-                                $mshop_ca_res4 = sql_query(get_mshop_category($mshop_ca_row3['ca_id'], 8));
-                                if(sql_num_rows($mshop_ca_res4))
-                                    echo '<button type="button" class="sub_ct_toggle ct_op">'.get_text($mshop_ca_row3['ca_name']).' 하위분류 열기</button>'.PHP_EOL;
+                $mshop_ca_row1 = $cate1['text'];
+                if($i == 0)
+                    echo '<ul class="cate">'.PHP_EOL;
+            ?>
+                <li>
+                    <a href="<?php echo $mshop_ca_row1['url']; ?>"><?php echo get_text($mshop_ca_row1['ca_name']); ?></a>
+                    <?php
+                    if( count($cate1) > 1 )
+                        echo '<button class="sub_ct_toggle ct_op">'.get_text($mshop_ca_row1['ca_name']).' 하위분류 열기</button>'.PHP_EOL;
 
-                                for($m=0; $mshop_ca_row4=sql_fetch_array($mshop_ca_res4); $m++) {
-                                    if($m == 0)
-                                        echo '<ul class="sub_cate sub_cate3">'.PHP_EOL;
-                                ?>
-                                    <li>
-                                        <a href="<?php echo $mshop_ca_href.$mshop_ca_row4['ca_id']; ?>">- <?php echo get_text($mshop_ca_row4['ca_name']); ?></a>
-                                        <?php
-                                        $mshop_ca_res5 = sql_query(get_mshop_category($mshop_ca_row4['ca_id'], 10));
-                                        if(sql_num_rows($mshop_ca_res5))
-                                            echo '<button type="button" class="sub_ct_toggle ct_op">'.get_text($mshop_ca_row4['ca_name']).' 하위분류 열기</button>'.PHP_EOL;
+                    $j=0;
+                    foreach($cate1 as $key=>$cate2){
+                        if( empty($cate2) || $key === 'text' ) continue;
+                        
+                        $mshop_ca_row2 = $cate2['text'];
+                        if($j == 0)
+                            echo '<ul class="sub_cate sub_cate1">'.PHP_EOL;
+                    ?>
+                        <li>
+                            <a href="<?php echo $mshop_ca_row2['url']; ?>"><?php echo get_text($mshop_ca_row2['ca_name']); ?></a>
+                            <?php
+                            $mshop_ca_res3 = sql_query(get_mshop_category($mshop_ca_row2['ca_id'], 6));
+                            if( count($cate2) > 1 )
+                                echo '<button type="button" class="sub_ct_toggle ct_op">'.get_text($mshop_ca_row2['ca_name']).' 하위분류 열기</button>'.PHP_EOL;
+                            
+                            $k = 0;
+                            foreach($cate2 as $cate3_key=>$cate3){
+                                if( empty($cate2) || $cate3_key === 'text' ) continue;
+                                
+                                $mshop_ca_row3 = $cate3['text'];
+                                if($k == 0)
+                                    echo '<ul class="sub_cate sub_cate2">'.PHP_EOL;
+                            ?>
+                                <li>
+                                    <a href="<?php echo $mshop_ca_row3['url']; ?>"><?php echo get_text($mshop_ca_row3['ca_name']); ?></a>
+                                    <?php
+                                    $mshop_ca_res4 = sql_query(get_mshop_category($mshop_ca_row3['ca_id'], 8));
+                                    if(sql_num_rows($mshop_ca_res4))
+                                        echo '<button type="button" class="sub_ct_toggle ct_op">'.get_text($mshop_ca_row3['ca_name']).' 하위분류 열기</button>'.PHP_EOL;
 
-                                        for($n=0; $mshop_ca_row5=sql_fetch_array($mshop_ca_res5); $n++) {
-                                            if($n == 0)
-                                                echo '<ul class="sub_cate sub_cate4">'.PHP_EOL;
-                                        ?>
-                                            <li>
-                                                <a href="<?php echo $mshop_ca_href.$mshop_ca_row5['ca_id']; ?>">- <?php echo get_text($mshop_ca_row5['ca_name']); ?></a>
-                                            </li>
-                                        <?php
-                                        }
+                                    for($m=0; $mshop_ca_row4=sql_fetch_array($mshop_ca_res4); $m++) {
+                                        if($m == 0)
+                                            echo '<ul class="sub_cate sub_cate3">'.PHP_EOL;
+                                    ?>
+                                        <li>
+                                            <a href="<?php echo $mshop_ca_href.$mshop_ca_row4['ca_id']; ?>"><?php echo get_text($mshop_ca_row4['ca_name']); ?></a>
+                                            <?php
+                                            $mshop_ca_res5 = sql_query(get_mshop_category($mshop_ca_row4['ca_id'], 10));
+                                            if(sql_num_rows($mshop_ca_res5))
+                                                echo '<button type="button" class="sub_ct_toggle ct_op">'.get_text($mshop_ca_row4['ca_name']).' 하위분류 열기</button>'.PHP_EOL;
 
-                                        if($n > 0)
-                                            echo '</ul>'.PHP_EOL;
-                                        ?>
-                                    </li>
-                                <?php
-                                }
+                                            for($n=0; $mshop_ca_row5=sql_fetch_array($mshop_ca_res5); $n++) {
+                                                if($n == 0)
+                                                    echo '<ul class="sub_cate sub_cate4">'.PHP_EOL;
+                                            ?>
+                                                <li>
+                                                    <a href="<?php echo $mshop_ca_href.$mshop_ca_row5['ca_id']; ?>"><?php echo get_text($mshop_ca_row5['ca_name']); ?></a>
+                                                </li>
+                                            <?php
+                                            }
 
-                                if($m > 0)
-                                    echo '</ul>'.PHP_EOL;
-                                ?>
-                            </li>
-                        <?php
-                        }
+                                            if($n > 0)
+                                                echo '</ul>'.PHP_EOL;
+                                            ?>
+                                        </li>
+                                    <?php
+                                    }
 
-                        if($k > 0)
-                            echo '</ul>'.PHP_EOL;
-                        ?>
-                    </li>
-                <?php
-                }
+                                    if($m > 0)
+                                        echo '</ul>'.PHP_EOL;
+                                    ?>
+                                </li>
+                            <?php
+                            $k++;
+                            }
 
-                if($j > 0)
-                    echo '</ul>'.PHP_EOL;
-                ?>
-            </li>
-        <?php
-        }
+                            if($k > 0)
+                                echo '</ul>'.PHP_EOL;
+                            ?>
+                        </li>
+                    <?php
+                    $j++;
+                    }
 
-        if($i > 0)
-            echo '</ul>'.PHP_EOL;
-        else
-            echo '<p>등록된 분류가 없습니다.</p>'.PHP_EOL;
-        ?>
-        <button type="button" class="pop_close"><span class="sound_only">카테고리 </span>닫기</button>
+                    if($j > 0)
+                        echo '</ul>'.PHP_EOL;
+                    ?>
+                </li>
+            <?php
+            $i++;
+            }   // end for
+
+            if($i > 0)
+                echo '</ul>'.PHP_EOL;
+            else
+                echo '<p>등록된 분류가 없습니다.</p>'.PHP_EOL;
+            ?>
+        </div>
+       
+        <?php include(G5_MSHOP_SKIN_PATH.'/boxtodayview.skin.php'); // 오늘 본 상품 ?>
+
+        <ul id="cate_tnb">
+            <li><a href="<?php echo G5_SHOP_URL; ?>/couponzone.php"><i class="fa fa-ticket"></i> 쿠폰존</a></li>
+            <li><a href="<?php echo G5_SHOP_URL; ?>/itemuselist.php"><i class="fa fa-camera"></i> 사용후기</a></li>
+            <li><a href="<?php echo G5_BBS_URL; ?>/faq.php"><i class="fa fa-question"></i>FAQ</a></li>
+            <li><a href="<?php echo G5_BBS_URL; ?>/qalist.php"><i class="fa fa-comments"></i>1:1문의</a></li>
+            <li><a href="<?php echo G5_SHOP_URL; ?>/personalpay.php"><i class="fa fa-credit-card"></i>개인결제</a></li>
+            <li><a href="<?php echo G5_URL; ?>"><i class="fa fa-home"></i>커뮤니티</a></li>
+        </ul> 
     </div>
 </div>
-
 <script>
-$(function (){
-    var $category = $("#category");
-
-    $("#hd_ct").on("click", function() {
-        $category.css("display","block");
-    });
-
-    $("#category .pop_close").on("click", function(){
-        $category.css("display","none");
-    });
+jQuery(function ($){
 
     $("button.sub_ct_toggle").on("click", function() {
         var $this = $(this);

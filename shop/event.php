@@ -1,6 +1,13 @@
 <?php
 include_once('./_common.php');
 
+$ev_id = (int) $ev_id;
+
+// 상품 리스트에서 다른 필드로 정렬을 하려면 아래의 배열 코드에서 해당 필드를 추가하세요.
+if( isset($sort) && ! in_array($sort, array('it_sum_qty', 'it_price', 'it_use_avg', 'it_use_cnt', 'it_update_time')) ){
+    $sort='';
+}
+
 if (G5_IS_MOBILE) {
     include_once(G5_MSHOP_PATH.'/event.php');
     return;
@@ -17,7 +24,7 @@ $g5['title'] = $ev['ev_subject'];
 include_once('./_head.php');
 
 if ($is_admin)
-    echo '<div class="sev_admin"><a href="'.G5_ADMIN_URL.'/shop_admin/itemeventform.php?w=u&amp;ev_id='.$ev['ev_id'].'" class="btn_admin">이벤트 관리</a></div>';
+    echo '<div class="sev_admin"><a href="'.G5_ADMIN_URL.'/shop_admin/itemeventform.php?w=u&amp;ev_id='.$ev['ev_id'].'" class="btn_admin btn"><span class="sound_only">이벤트 관리</span><i class="fa fa-cog fa-spin fa-fw"></i></a></div>';
 ?>
 
 <script>
@@ -41,7 +48,7 @@ else
     $order_by = 'b.it_order, b.it_id desc';
 
 if ($skin) {
-    $skin = preg_replace('#\.+/#', '', $skin);
+    $skin = preg_replace('#\.+(\/|\\\)#', '', $skin);
     $ev['ev_skin'] = $skin;
 }
 
@@ -51,10 +58,14 @@ define('G5_SHOP_CSS_URL', G5_SHOP_SKIN_URL);
 $list_file = G5_SHOP_SKIN_PATH."/{$ev['ev_skin']}";
 if (file_exists($list_file))
 {
+    
+    echo '<div id="sct_sortlst">';
     include G5_SHOP_SKIN_PATH.'/list.sort.skin.php';
 
     // 상품 보기 타입 변경 버튼
     include G5_SHOP_SKIN_PATH.'/list.sub.skin.php';
+
+    echo '</div>';
 
     // 총몇개 = 한줄에 몇개 * 몇줄
     $items = $ev['ev_list_mod'] * $ev['ev_list_row'];

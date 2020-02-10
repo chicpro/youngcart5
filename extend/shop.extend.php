@@ -8,14 +8,14 @@ if (!defined('G5_USE_SHOP') || !G5_USE_SHOP) return;
 .'(배송업체명^택배조회URL^연락처)'
 */
 define('G5_DELIVERY_COMPANY',
-     '(경동택배^http://www.kdexp.com/sub3_shipping.asp?stype=1&p_item=^080-873-2178)'
+     '(경동택배^https://kdexp.com/basicNewDelivery.kd?barcode=^080-873-2178)'
     .'(대신택배^http://home.daesinlogistics.co.kr/daesin/jsp/d_freight_chase/d_general_process2.jsp?billno1=^043-222-4582)'
     .'(동부택배^http://www.dongbups.com/delivery/delivery_search_view.jsp?item_no=^1588-8848)'
-    .'(로젠택배^http://www.ilogen.com/iLOGEN.Web.New/TRACE/TraceView.aspx?gubun=slipno&slipno=^1588-9988)'
+    .'(로젠택배^https://www.ilogen.com/m/personal/trace.pop/^1588-9988)'
     .'(우체국^http://service.epost.go.kr/trace.RetrieveRegiPrclDeliv.postal?sid1=^1588-1300)'
     .'(이노지스택배^http://www.innogis.co.kr/tracking_view.asp?invoice=^1566-4082)'
     .'(한진택배^http://www.hanjin.co.kr/Delivery_html/inquiry/result_waybill.jsp?wbl_num=^1588-0011)'
-    .'(롯데택배^https://www.lotteglogis.com/open/tracking?InvNo=^1588-2121)'
+    .'(롯데택배^https://www.lotteglogis.com/open/tracking?invno=^1588-2121)'
     .'(CJ대한통운^https://www.doortodoor.co.kr/parcel/doortodoor.do?fsp_action=PARC_ACT_002&fsp_cmd=retrieveInvNoACT&invc_no=^1588-1255)'
     .'(CVSnet편의점택배^http://was.cvsnet.co.kr/_ver2/board/ctod_status.jsp?invoice_no=^1577-1287)'
     .'(KG옐로우캡택배^http://www.yellowcap.co.kr/custom/inquiry_result.asp?invoice_no=^1588-0123)'
@@ -25,6 +25,7 @@ define('G5_DELIVERY_COMPANY',
     .'(호남택배^http://www.honamlogis.co.kr/04estimate/songjang_list.php?c_search1=^031-376-6070)'
 );
 
+include_once(G5_LIB_PATH.'/shop.data.lib.php');
 include_once(G5_LIB_PATH.'/shop.lib.php');
 include_once(G5_LIB_PATH.'/thumbnail.lib.php');
 
@@ -69,4 +70,13 @@ define('G5_CART_STOCK_LIMIT', 3);
 // 아이코드 코인 최소금액 설정
 // 코인 잔액이 설정 금액보다 작을 때는 주문시 SMS 발송 안함
 define('G5_ICODE_COIN', 100);
+
+include_once(G5_LIB_PATH.'/shop.uri.lib.php');
+
+add_replace('get_pretty_url', 'add_pretty_shop_url', 10, 5);
+add_replace('false_short_url_clean', 'shop_short_url_clean', 10, 4);
+add_replace('add_nginx_conf_rules', 'add_shop_nginx_conf_rules', 10, 3);
+add_replace('add_mod_rewrite_rules', 'add_shop_mod_rewrite_rules', 10, 3);
+add_replace('admin_dbupgrade', 'add_shop_admin_dbupgrade', 10, 3);
+add_replace('exist_check_seo_title', 'shop_exist_check_seo_title', 10, 4);
 ?>

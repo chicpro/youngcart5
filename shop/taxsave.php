@@ -4,6 +4,12 @@ include_once('./_common.php');
 $g5['title'] = '주문번호 '.$od_id.' 현금영수증 발행';
 include_once(G5_PATH.'/head.sub.php');
 
+if (!$od_id){
+    alert('주문번호가 누락되었습니다.');
+}
+
+$od_id = preg_replace('/[^a-z0-9_-]/i', '', $od_id);
+
 if($tx == 'personalpay') {
     $od = sql_fetch(" select * from {$g5['g5_shop_personalpay_table']} where pp_id = '$od_id' ");
     if (!$od)
@@ -24,6 +30,10 @@ if($tx == 'personalpay') {
     $od = sql_fetch(" select * from {$g5['g5_shop_order_table']} where od_id = '$od_id' ");
     if (!$od)
         die('<p id="scash_empty">주문서가 존재하지 않습니다.</p>');
+
+	if ( ! $is_admin && ! (shop_is_taxsave($od)) ){
+		die('해당 주문은 현금영수증을 발급할수 없습니다.');
+	}
 
     $goods = get_goods($od['od_id']);
     $goods_name = $goods['full_name'];

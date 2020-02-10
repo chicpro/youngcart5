@@ -11,37 +11,46 @@ $admin = get_admin("super");
 // 사용자 화면 우측과 하단을 담당하는 페이지입니다.
 // 우측, 하단 화면을 꾸미려면 이 파일을 수정합니다.
 ?>
-
-    </div>
-    <!-- } 콘텐츠 끝 -->
+        </div>  <!-- } .shop-content 끝 -->
+	</div>      <!-- } #container 끝 -->
+</div>
+<!-- } 전체 콘텐츠 끝 -->
 
 <!-- 하단 시작 { -->
-</div>
-
 <div id="ft">
-    <div>
-        <a href="<?php echo G5_SHOP_URL; ?>/" id="ft_logo"><img src="<?php echo G5_DATA_URL; ?>/common/logo_img2" alt="처음으로"></a>
-        <ul>
-            <li><a href="<?php echo G5_BBS_URL; ?>/content.php?co_id=company">회사소개</a></li>
-            <li><a href="<?php echo G5_BBS_URL; ?>/content.php?co_id=provision">서비스이용약관</a></li>
-            <li><a href="<?php echo G5_BBS_URL; ?>/content.php?co_id=privacy">개인정보처리방침</a></li>
+    <div id="ft_wr">
+        <ul id="ft_link" class="ft_cnt">
+            <li><a href="<?php echo get_pretty_url('content', 'company'); ?>">회사소개</a></li>
+            <li><a href="<?php echo get_pretty_url('content', 'provision'); ?>">서비스이용약관</a></li>
+            <li><a href="<?php echo get_pretty_url('content', 'privacy'); ?>">개인정보처리방침</a></li>
+            <li><a href="<?php echo get_device_change_url(); ?>">모바일버전</a></li>
         </ul>
-        <p>
-            <span><b>회사명</b> <?php echo $default['de_admin_company_name']; ?></span>
-            <span><b>주소</b> <?php echo $default['de_admin_company_addr']; ?></span><br>
-            <span><b>사업자 등록번호</b> <?php echo $default['de_admin_company_saupja_no']; ?></span>
-            <span><b>대표</b> <?php echo $default['de_admin_company_owner']; ?></span>
-            <span><b>전화</b> <?php echo $default['de_admin_company_tel']; ?></span>
-            <span><b>팩스</b> <?php echo $default['de_admin_company_fax']; ?></span><br>
-            <!-- <span><b>운영자</b> <?php echo $admin['mb_name']; ?></span><br> -->
-            <span><b>통신판매업신고번호</b> <?php echo $default['de_admin_tongsin_no']; ?></span>
-            <span><b>개인정보 보호책임자</b> <?php echo $default['de_admin_info_name']; ?></span>
+        <div id="ft_company" class="ft_cnt">
+        	<h2>사이트 정보</h2>
+	        <p class="ft_info">
+		        <span><b>회사명</b> <?php echo $default['de_admin_company_name']; ?></span>
+	            <span><b>주소</b> <?php echo $default['de_admin_company_addr']; ?></span><br>
+	            <span><b>사업자 등록번호</b> <?php echo $default['de_admin_company_saupja_no']; ?></span>
+	            <span><b>대표</b> <?php echo $default['de_admin_company_owner']; ?></span>
+	            <span><b>전화</b> <?php echo $default['de_admin_company_tel']; ?></span>
+	            <span><b>팩스</b> <?php echo $default['de_admin_company_fax']; ?></span><br>
+	            <!-- <span><b>운영자</b> <?php echo $admin['mb_name']; ?></span><br> -->
+	            <span><b>통신판매업신고번호</b> <?php echo $default['de_admin_tongsin_no']; ?></span>
+	            <span><b>개인정보 보호책임자</b> <?php echo $default['de_admin_info_name']; ?></span><br>
+				<?php if ($default['de_admin_buga_no']) echo '<span><b>부가통신사업신고번호</b> '.$default['de_admin_buga_no'].'</span>'; ?>
+			</p>
+	    </div>
+	    
+	    <!-- 커뮤니티 최신글 시작 { -->
+        <section id="sidx_lat">
+            <?php echo latest('theme/notice', 'notice', 5, 30); ?>
+        </section>
+        <!-- } 커뮤니티 최신글 끝 -->
 
-            <?php if ($default['de_admin_buga_no']) echo '<span><b>부가통신사업신고번호</b> '.$default['de_admin_buga_no'].'</span>'; ?><br>
-            Copyright &copy; 2001-2013 <?php echo $default['de_admin_company_name']; ?>. All Rights Reserved.
-        </p>
-        <a href="#" id="ft_totop">상단으로</a>
+		<?php echo visit('theme/shop_basic'); // 접속자 ?>
     </div>
+
+    <div id="ft_copy">Copyright &copy; 2001-2013 <?php echo $default['de_admin_company_name']; ?>. All Rights Reserved.</div>
 </div>
 
 <?php

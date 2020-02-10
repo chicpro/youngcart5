@@ -20,6 +20,7 @@ if (!$tmp_cart_id)
     alert('더 이상 작업을 진행할 수 없습니다.\\n\\n브라우저의 쿠키 허용을 사용하지 않음으로 설정한것 같습니다.\\n\\n브라우저의 인터넷 옵션에서 쿠키 허용을 사용으로 설정해 주십시오.\\n\\n그래도 진행이 되지 않는다면 쇼핑몰 운영자에게 문의 바랍니다.');
 }
 
+$tmp_cart_id = preg_replace('/[^a-z0-9_\-]/i', '', $tmp_cart_id);
 
 // 레벨(권한)이 상품구입 권한보다 작다면 상품을 구입할 수 없음.
 if ($member['mb_level'] < $default['de_level_sell'])
@@ -41,6 +42,13 @@ if($act == "buy")
         $ct_chk = $_POST['ct_chk'][$i];
         if($ct_chk) {
             $it_id = $_POST['it_id'][$i];
+
+            // 본인인증, 성인인증체크
+            if(!$is_admin) {
+                $msg = shop_member_cert_check($it_id, 'item');
+                if($msg)
+                    alert($msg, G5_SHOP_URL);
+            }
 
             // 주문 상품의 재고체크
             $sql = " select ct_qty, it_name, ct_option, io_id, io_type
@@ -136,9 +144,15 @@ else // 장바구니에 담기
                 alert('수량은 1 이상 입력해 주십시오.');
         }
 
+        // 본인인증, 성인인증체크
+        if(!$is_admin) {
+            $msg = shop_member_cert_check($it_id, 'item');
+            if($msg)
+                alert($msg, G5_SHOP_URL);
+        }
+
         // 상품정보
-        $sql = " select * from {$g5['g5_shop_item_table']} where it_id = '$it_id' ";
-        $it = sql_fetch($sql);
+        $it = get_shop_item($it_id, false);
         if(!$it['it_id'])
             alert('상품정보가 존재하지 않습니다.');
 
@@ -151,7 +165,7 @@ else // 장바구니에 담기
             $sum_qty = 0;
             for($k=0; $k<$opt_count; $k++) {
                 if($_POST['io_type'][$it_id][$k] == 0)
-                    $sum_qty += $_POST['ct_qty'][$it_id][$k];
+                    $sum_qty += (int) $_POST['ct_qty'][$it_id][$k];
             }
 
             if($it['it_buy_min_qty'] > 0 && $sum_qty < $it['it_buy_min_qty'])
@@ -170,14 +184,16 @@ else // 장바구니에 담기
                               and ct_status = '쇼핑' ";
                 $row4 = sql_fetch($sql4);
 
-                if(($sum_qty + $row4['ct_sum']) > $it['it_buy_max_qty'])
+				$option_sum_qty = ( $act === 'optionmod' ) ? $sum_qty : $sum_qty + $row4['ct_sum'];
+
+                if(($option_sum_qty) > $it['it_buy_max_qty'])
                     alert($it['it_name'].'의 선택옵션 개수 총합 '.number_format($it['it_buy_max_qty']).'개 이하로 주문해 주십시오.', './cart.php');
             }
         }
 
         // 옵션정보를 얻어서 배열에 저장
         $opt_list = array();
-        $sql = " select * from {$g5['g5_shop_item_option_table']} where it_id = '$it_id' order by io_no asc ";
+        $sql = " select * from {$g5['g5_shop_item_option_table']} where it_id = '$it_id' and io_use = 1 order by io_no asc ";
         $result = sql_query($sql);
         $lst_count = 0;
         for($k=0; $row=sql_fetch_array($result); $k++) {
@@ -213,7 +229,7 @@ else // 장바구니에 담기
                 $sum_qty = $row['cnt'];
 
                 // 재고 구함
-                $ct_qty = $_POST['ct_qty'][$it_id][$k];
+                $ct_qty = (int) $_POST['ct_qty'][$it_id][$k];
                 if(!$io_id)
                     $it_stock_qty = get_it_stock_qty($it_id);
                 else
@@ -261,7 +277,7 @@ else // 장바구니에 담기
                 continue;
 
             $io_price = $opt_list[$io_type][$io_id]['price'];
-            $ct_qty = $_POST['ct_qty'][$it_id][$k];
+            $ct_qty = (int) $_POST['ct_qty'][$it_id][$k];
 
             // 구매가격이 음수인지 체크
             if($io_type) {
@@ -318,8 +334,11 @@ else // 장바구니에 담기
                 $ct_send_cost = 2; // 무료
             else if($it['it_sc_type'] > 1 && $it['it_sc_method'] == 1)
                 $ct_send_cost = 1; // 착불
+            
+            $io_value = sql_real_escape_string(strip_tags($io_value));
+            $remote_addr = get_real_client_ip();
 
-            $sql .= $comma."( '$tmp_cart_id', '{$member['mb_id']}', '{$it['it_id']}', '".addslashes($it['it_name'])."', '{$it['it_sc_type']}', '{$it['it_sc_method']}', '{$it['it_sc_price']}', '{$it['it_sc_minimum']}', '{$it['it_sc_qty']}', '쇼핑', '{$it['it_price']}', '$point', '0', '0', '$io_value', '$ct_qty', '{$it['it_notax']}', '$io_id', '$io_type', '$io_price', '".G5_TIME_YMDHIS."', '$REMOTE_ADDR', '$ct_send_cost', '$sw_direct', '$ct_select', '$ct_select_time' )";
+            $sql .= $comma."( '$tmp_cart_id', '{$member['mb_id']}', '{$it['it_id']}', '".addslashes($it['it_name'])."', '{$it['it_sc_type']}', '{$it['it_sc_method']}', '{$it['it_sc_price']}', '{$it['it_sc_minimum']}', '{$it['it_sc_qty']}', '쇼핑', '{$it['it_price']}', '$point', '0', '0', '$io_value', '$ct_qty', '{$it['it_notax']}', '$io_id', '$io_type', '$io_price', '".G5_TIME_YMDHIS."', '$remote_addr', '$ct_send_cost', '$sw_direct', '$ct_select', '$ct_select_time' )";
             $comma = ' , ';
             $ct_count++;
         }

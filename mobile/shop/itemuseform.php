@@ -6,13 +6,12 @@ if (!$is_member) {
     alert_close("사용후기는 회원만 작성 가능합니다.");
 }
 
-$w     = trim($_REQUEST['w']);
-$it_id = trim($_REQUEST['it_id']);
-$is_id = trim($_REQUEST['is_id']);
+$w     = preg_replace('/[^0-9a-z]/i', '', trim($_REQUEST['w']));
+$it_id = get_search_string(trim($_REQUEST['it_id']));
+$is_id = preg_replace('/[^0-9]/', '', trim($_REQUEST['is_id']));
 
 // 상품정보체크
-$sql = " select it_id from {$g5['g5_shop_item_table']} where it_id = '$it_id' ";
-$row = sql_fetch($sql);
+$row = get_shop_item($it_id, true);
 if(!$row['it_id'])
     alert_close('상품정보가 존재하지 않습니다.');
 
@@ -42,7 +41,7 @@ $is_dhtml_editor = false;
 if ($config['cf_editor'] && (!is_mobile() || defined('G5_IS_MOBILE_DHTML_USE') && G5_IS_MOBILE_DHTML_USE)) {
     $is_dhtml_editor = true;
 }
-$editor_html = editor_html('is_content', get_text($use['is_content'], 0), $is_dhtml_editor);
+$editor_html = editor_html('is_content', get_text(html_purifier($use['is_content']), 0), $is_dhtml_editor);
 $editor_js = '';
 $editor_js .= get_editor_js('is_content', $is_dhtml_editor);
 $editor_js .= chk_editor_js('is_content', $is_dhtml_editor);

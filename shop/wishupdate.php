@@ -26,10 +26,16 @@ else
 
     if(!$it_id)
         alert('상품코드가 올바르지 않습니다.', G5_SHOP_URL);
+    
+    // 본인인증, 성인인증체크
+    if(!$is_admin) {
+        $msg = shop_member_cert_check($it_id, 'item');
+        if($msg)
+            alert($msg, G5_SHOP_URL);
+    }
 
     // 상품정보 체크
-    $sql = " select it_id from {$g5['g5_shop_item_table']} where it_id = '$it_id' ";
-    $row = sql_fetch($sql);
+    $row = get_shop_item($it_id, true);
 
     if(!$row['it_id'])
         alert('상품정보가 존재하지 않습니다.', G5_SHOP_URL);

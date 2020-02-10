@@ -83,6 +83,7 @@ class item_list
     protected $view_it_cust_price = false;  // 소비자가
     protected $view_it_icon = false;        // 아이콘
     protected $view_sns = false;            // SNS
+    protected $view_star = false;           // 별점
 
     // 몇번째 class 호출인지를 저장합니다.
     protected $count = 0;
@@ -98,7 +99,6 @@ class item_list
 
     // 외부에서 쿼리문을 넘겨줄 경우에 담아두는 변수
     protected $query = "";
-
 
     // $type        : 상품유형 (기본으로 1~5까지 사용)
     // $list_skin   : 상품리스트를 노출할 스킨을 설정합니다. 스킨위치는 skin/shop/쇼핑몰설정스킨/type??.skin.php
@@ -254,6 +254,8 @@ class item_list
     function run() {
 
         global $g5, $config, $member, $default;
+        
+        $list = array();
 
         if ($this->query) {
 
@@ -309,7 +311,21 @@ class item_list
                 $row2 = sql_fetch($sql2);
                 $this->total_count = $row2['cnt'];
             }
+        }
 
+        if( isset($result) && $result ){
+            while ($row=sql_fetch_array($result)) {
+                
+                if( isset($row['it_seo_title']) && ! $row['it_seo_title'] ){
+                    shop_seo_title_update($row['it_id']);
+                }
+
+                $list[] = $row;
+            }
+
+            if(function_exists('sql_data_seek')){
+                sql_data_seek($result, 0);
+            }
         }
 
         $file = $this->list_skin;
@@ -328,7 +344,6 @@ class item_list
         }
     }
 }
-
 
 // 장바구니 건수 검사
 function get_cart_count($cart_id)
@@ -389,11 +404,12 @@ function get_it_image($it_id, $width, $height=0, $anchor=false, $img_id='', $img
     if(!$it_id || !$width)
         return '';
 
-    $sql = " select it_id, it_img1, it_img2, it_img3, it_img4, it_img5, it_img6, it_img7, it_img8, it_img9, it_img10 from {$g5['g5_shop_item_table']} where it_id = '$it_id' ";
-    $row = sql_fetch($sql);
+    $row = get_shop_item($it_id, true);
 
     if(!$row['it_id'])
         return '';
+
+    $filename = $thumb = $img = '';
 
     for($i=1;$i<=10; $i++) {
         $file = G5_DATA_PATH.'/item/'.$row['it_img'.$i];
@@ -435,16 +451,19 @@ function get_it_image($it_id, $width, $height=0, $anchor=false, $img_id='', $img
     $img .= '>';
 
     if($anchor)
-        $img = '<a href="'.G5_SHOP_URL.'/item.php?it_id='.$it_id.'">'.$img.'</a>';
+        $img = $img = '<a href="'.shop_item_url($it_id).'">'.$img.'</a>';
 
-    return $img;
+    return run_replace('get_it_image_tag', $img, $thumb, $it_id, $width, $height, $anchor, $img_id, $img_alt, $is_crop);
 }
-
 
 // 상품이미지 썸네일 생성
 function get_it_thumbnail($img, $width, $height=0, $id='', $is_crop=false)
 {
     $str = '';
+
+    if ( $replace_tag = run_replace('get_it_thumbnail_tag', $str, $img, $width, $height, $id, $is_crop) ){
+        return $replace_tag;
+    }
 
     $file = G5_DATA_PATH.'/item/'.$img;
     if(is_file($file))
@@ -481,10 +500,7 @@ function get_it_imageurl($it_id)
 {
     global $g5;
 
-    $sql = " select it_img1, it_img2, it_img3, it_img4, it_img5, it_img6, it_img7, it_img8, it_img9, it_img10
-                from {$g5['g5_shop_item_table']}
-                where it_id = '$it_id' ";
-    $row = sql_fetch($sql);
+    $row = get_shop_item($it_id, true);
     $filepath = '';
 
     for($i=1; $i<=10; $i++) {
@@ -921,7 +937,6 @@ function title_sort($col, $type=0)
     return "{$_SERVER['SCRIPT_NAME']}?$q1&amp;$q2&amp;page=$page";
 }
 
-
 // 세션값을 체크하여 이쪽에서 온것이 아니면 메인으로
 function session_check()
 {
@@ -931,9 +946,8 @@ function session_check()
         gotourl(G5_SHOP_URL);
 }
 
-
 // 상품 선택옵션
-function get_item_options($it_id, $subject)
+function get_item_options($it_id, $subject, $is_div='', $is_first_option_title='')
 {
     global $g5;
 
@@ -974,11 +988,20 @@ function get_item_options($it_id, $subject)
                 $seq = $i + 1;
                 if($i > 0)
                     $disabled = ' disabled="disabled"';
-                $str .= '<tr>'.PHP_EOL;
-                $str .= '<th><label for="it_option_'.$seq.'">'.$subj[$i].'</label></th>'.PHP_EOL;
+
+                if($is_div === 'div') {
+                    $str .= '<div class="get_item_options">'.PHP_EOL;
+                    $str .= '<label for="it_option_'.$seq.'" class="label-title">'.$subj[$i].'</label>'.PHP_EOL;
+                } else {
+                    $str .= '<tr>'.PHP_EOL;
+                    $str .= '<th><label for="it_option_'.$seq.'" class="label-title">'.$subj[$i].'</label></th>'.PHP_EOL;
+                }
 
                 $select = '<select id="it_option_'.$seq.'" class="it_option"'.$disabled.'>'.PHP_EOL;
-                $select .= '<option value="">선택</option>'.PHP_EOL;
+
+                $first_option_title = $is_first_option_title ? $subj[$i] : '선택';
+
+                $select .= '<option value="">'.$first_option_title.'</option>'.PHP_EOL;
                 for($k=0; $k<$opt_count; $k++) {
                     $opt_val = $opt[$k];
                     if(strlen($opt_val)) {
@@ -987,13 +1010,23 @@ function get_item_options($it_id, $subject)
                 }
                 $select .= '</select>'.PHP_EOL;
 
-                $str .= '<td>'.$select.'</td>'.PHP_EOL;
-                $str .= '</tr>'.PHP_EOL;
+                if($is_div === 'div') {
+                    $str .= '<span>'.$select.'</span>'.PHP_EOL;
+                    $str .= '</div>'.PHP_EOL;
+                } else {
+                    $str .= '<td>'.$select.'</td>'.PHP_EOL;
+                    $str .= '</tr>'.PHP_EOL;
+                }
             }
         }
     } else {
-        $str .= '<tr>'.PHP_EOL;
-        $str .= '<th><label for="it_option_1">'.$subj[0].'</label></th>'.PHP_EOL;
+        if($is_div === 'div') {
+            $str .= '<div class="get_item_options">'.PHP_EOL;
+            $str .= '<label for="it_option_1">'.$subj[0].'</label>'.PHP_EOL;
+        } else {
+            $str .= '<tr>'.PHP_EOL;
+            $str .= '<th><label for="it_option_1">'.$subj[0].'</label></th>'.PHP_EOL;
+        }
 
         $select = '<select id="it_option_1" class="it_option">'.PHP_EOL;
         $select .= '<option value="">선택</option>'.PHP_EOL;
@@ -1011,17 +1044,22 @@ function get_item_options($it_id, $subject)
             $select .= '<option value="'.$row['io_id'].','.$row['io_price'].','.$row['io_stock_qty'].'">'.$row['io_id'].$price.$soldout.'</option>'.PHP_EOL;
         }
         $select .= '</select>'.PHP_EOL;
+        
+        if($is_div === 'div') {
+            $str .= '<span>'.$select.'</span>'.PHP_EOL;
+            $str .= '</div>'.PHP_EOL;
+        } else {
+            $str .= '<td>'.$select.'</td>'.PHP_EOL;
+            $str .= '</tr>'.PHP_EOL;
+        }
 
-        $str .= '<td>'.$select.'</td>'.PHP_EOL;
-        $str .= '</tr>'.PHP_EOL;
     }
 
     return $str;
 }
 
-
 // 상품 추가옵션
-function get_item_supply($it_id, $subject)
+function get_item_supply($it_id, $subject, $is_div='', $is_first_option_title='')
 {
     global $g5;
 
@@ -1068,11 +1106,18 @@ function get_item_supply($it_id, $subject)
         $opt_count = count($opt);
         if($opt_count) {
             $seq = $i + 1;
-            $str .= '<tr>'.PHP_EOL;
-            $str .= '<th><label for="it_supply_'.$seq.'">'.$subj[$i].'</label></th>'.PHP_EOL;
+            if($is_div === 'div') {
+                $str .= '<div class="get_item_supply">'.PHP_EOL;
+                $str .= '<label for="it_supply_'.$seq.'" class="label-title">'.$subj[$i].'</label>'.PHP_EOL;
+            } else {
+                $str .= '<tr>'.PHP_EOL;
+                $str .= '<th><label for="it_supply_'.$seq.'">'.$subj[$i].'</label></th>'.PHP_EOL;
+            }
+            
+            $first_option_title = $is_first_option_title ? $subj[$i] : '선택';
 
             $select = '<select id="it_supply_'.$seq.'" class="it_supply">'.PHP_EOL;
-            $select .= '<option value="">선택</option>'.PHP_EOL;
+            $select .= '<option value="">'.$first_option_title.'</option>'.PHP_EOL;
             for($k=0; $k<$opt_count; $k++) {
                 $opt_val = $opt[$k];
                 if($opt_val) {
@@ -1080,15 +1125,19 @@ function get_item_supply($it_id, $subject)
                 }
             }
             $select .= '</select>'.PHP_EOL;
-
-            $str .= '<td class="td_sit_sel">'.$select.'</td>'.PHP_EOL;
-            $str .= '</tr>'.PHP_EOL;
+            
+            if($is_div === 'div') {
+                $str .= '<span class="td_sit_sel">'.$select.'</span>'.PHP_EOL;
+                $str .= '</div>'.PHP_EOL;
+            } else {
+                $str .= '<td class="td_sit_sel">'.$select.'</td>'.PHP_EOL;
+                $str .= '</tr>'.PHP_EOL;
+            }
         }
     }
 
     return $str;
 }
-
 
 function print_item_options($it_id, $cart_id)
 {
@@ -1342,7 +1391,7 @@ function set_cart_id($direct)
     } else {
         // 비회원장바구니 cart id 쿠키설정
         if($default['de_guest_cart_use']) {
-            $tmp_cart_id = get_cookie('ck_guest_cart_id');
+            $tmp_cart_id = preg_replace('/[^a-z0-9_\-]/i', '', get_cookie('ck_guest_cart_id'));
             if($tmp_cart_id) {
                 set_session('ss_cart_id', $tmp_cart_id);
                 //set_cookie('ck_guest_cart_id', $tmp_cart_id, ($default['de_cart_keep_term'] * 86400));
@@ -1398,7 +1447,7 @@ function relation_item($it_id, $width, $height, $rows=3)
 
         $img = get_it_image($row['it_id'], $width, $height);
 
-        $str .= '<li class="sct_rel_li"><a href="'.G5_SHOP_URL.'/item.php?it_id='.$row['it_id'].'" class="sct_rel_a">'.$img.'</a></li>';
+        $str .= '<li class="sct_rel_li"><a href="'.get_pretty_url('shop', $row['it_id']).'" class="sct_rel_a">'.$img.'</a></li>';
     }
 
     if($i > 0)
@@ -1414,24 +1463,22 @@ function item_icon($it)
     global $g5;
 
     $icon = '<span class="sit_icon">';
-    // 품절
-    if (is_soldout($it['it_id']))
-        $icon .= '<img src="'.G5_SHOP_URL.'/img/icon_soldout.gif" alt="품절">';
 
     if ($it['it_type1'])
-        $icon .= '<img src="'.G5_SHOP_URL.'/img/icon_hit.gif" alt="히트상품">';
+        $icon .= '<span class="shop_icon shop_icon_1">히트</span>';
 
     if ($it['it_type2'])
-        $icon .= '<img src="'.G5_SHOP_URL.'/img/icon_rec.gif" alt="추천상품">';
+        $icon .= '<span class="shop_icon shop_icon_2">추천</span>';
 
     if ($it['it_type3'])
-        $icon .= '<img src="'.G5_SHOP_URL.'/img/icon_new.gif" alt="최신상품">';
+        $icon .= '<span class="shop_icon shop_icon_3">최신</span>';
 
     if ($it['it_type4'])
-        $icon .= '<img src="'.G5_SHOP_URL.'/img/icon_best.gif" alt="인기상품">';
+        $icon .= '<span class="shop_icon shop_icon_4">인기</span>';
 
     if ($it['it_type5'])
-        $icon .= '<img src="'.G5_SHOP_URL.'/img/icon_discount.gif" alt="할인상품">';
+        $icon .= '<span class="shop_icon shop_icon_5">할인</span>';
+
 
     // 쿠폰상품
     $sql = " select count(*) as cnt
@@ -1445,7 +1492,7 @@ function item_icon($it)
                       ) ";
     $row = sql_fetch($sql);
     if($row['cnt'])
-        $icon .= '<img src="'.G5_SHOP_URL.'/img/icon_cp.gif" alt="쿠폰상품">';
+        $icon .= '<span class="shop_icon shop_icon_coupon">쿠폰</span>';
 
     $icon .= '</span>';
 
@@ -1833,19 +1880,23 @@ function get_item_sendcost2($it_id, $price, $qty)
     else
     {
         if($it['it_sc_type'] > 1) {
-            if($it['it_sc_type'] == 2) { // 조건부무료
-                if($price >= $it['it_sc_minimum'])
-                    $sendcost = 0;
-                else
+            if($it['it_sc_method'] == 1){  // 배송비 결제 설정이 착불인 경우
+                $sendcost = -1;
+            } else {    // 배송비 결제 설정이 선불 또는 사용자선택인 경우
+                if($it['it_sc_type'] == 2) { // 조건부무료
+                    if($price >= $it['it_sc_minimum'])
+                        $sendcost = 0;
+                    else
+                        $sendcost = $it['it_sc_price'];
+                } else if($it['it_sc_type'] == 3) { // 유료배송
                     $sendcost = $it['it_sc_price'];
-            } else if($it['it_sc_type'] == 3) { // 유료배송
-                $sendcost = $it['it_sc_price'];
-            } else { // 수량별 부과
-                if(!$it['it_sc_qty'])
-                    $it['it_sc_qty'] = 1;
+                } else { // 수량별 부과
+                    if(!$it['it_sc_qty'])
+                        $it['it_sc_qty'] = 1;
 
-                $q = ceil((int)$qty / (int)$it['it_sc_qty']);
-                $sendcost = (int)$it['it_sc_price'] * $q;
+                    $q = ceil((int)$qty / (int)$it['it_sc_qty']);
+                    $sendcost = (int)$it['it_sc_price'] * $q;
+                }
             }
         } else if($it['it_sc_type'] == 1) { // 무료배송
             $sendcost = 0;
@@ -1873,13 +1924,21 @@ function is_used_coupon($mb_id, $cp_id)
 }
 
 // 품절상품인지 체크
-function is_soldout($it_id)
+function is_soldout($it_id, $is_cache=false)
 {
     global $g5;
 
+    static $cache = array();
+
+    $it_id = preg_replace('/[^a-z0-9_]/i', '', $it_id);
+    $key = md5($it_id);
+
+    if( $is_cache && isset($cache[$key]) ){
+        return $cache[$key];
+    }
+
     // 상품정보
-    $sql = " select it_soldout, it_stock_qty from {$g5['g5_shop_item_table']} where it_id = '$it_id' ";
-    $it = sql_fetch($sql);
+    $it = get_shop_item($it_id, $is_cache);
 
     if($it['it_soldout'] || $it['it_stock_qty'] <= 0)
         return true;
@@ -1917,6 +1976,8 @@ function is_soldout($it_id)
         if($stock_qty <= 0)
             $soldout = true;
     }
+    
+    $cache[$key] = $soldout;
 
     return $soldout;
 }
@@ -1956,8 +2017,7 @@ function shop_member_cert_check($id, $type)
     switch($type)
     {
         case 'item':
-            $sql = " select ca_id, ca_id2, ca_id3 from {$g5['g5_shop_item_table']} where it_id = '$id' ";
-            $it = sql_fetch($sql);
+            $it = get_shop_item($id, true);
 
             $seq = '';
             for($i=0; $i<3; $i++) {
@@ -2071,11 +2131,151 @@ function update_use_avg($it_id)
     return sql_query(" update {$g5['g5_shop_item_table']} set it_use_avg = '$average' where it_id = '{$it_id}' ");
 }
 
-//주문데이터 또는 개인결제 주문데이터 가져오기
-function get_shop_order_data($od_id, $type='item'){
+//오늘본상품 데이터
+function get_view_today_items($is_cache=false)
+{
     global $g5;
     
-    $od_id = clean_xss_tags($od_id);
+    $tv_idx = get_session("ss_tv_idx");
+
+    if( !$tv_idx ){
+        return array();
+    }
+
+    static $cache = array();
+
+    if( $is_cache && !empty($cache) ){
+        return $cache;
+    }
+
+    for ($i=1;$i<=$tv_idx;$i++){
+
+        $tv_it_idx = $tv_idx - ($i - 1);
+        $tv_it_id = get_session("ss_tv[$tv_it_idx]");
+
+        $rowx = get_shop_item($tv_it_id, true);
+        if(!$rowx['it_id'])
+            continue;
+        
+        $key = $rowx['it_id'];
+
+        $cache[$key] = $rowx;
+    }
+
+    return $cache;
+}
+
+//오늘본상품 갯수 출력
+function get_view_today_items_count()
+{
+    $tv_datas = get_view_today_items(true);
+
+    return count($tv_datas);
+}
+
+//장바구니 간소 데이터 가져오기
+function get_boxcart_datas($is_cache=false)
+{
+    global $g5;
+    
+    $cart_id = get_session("ss_cart_id");
+
+    if( !$cart_id ){
+        return array();
+    }
+
+    static $cache = array();
+
+    if( $is_cache && !empty($cache) ){
+        return $cache;
+    }
+
+    $sql  = " select * from {$g5['g5_shop_cart_table']} ";
+    $sql .= " where od_id = '".$cart_id."' group by it_id ";
+    $result = sql_query($sql);
+    for ($i=0; $row=sql_fetch_array($result); $i++)
+    {
+        $key = $row['it_id'];
+        $cache[$key] = $row;
+    }
+
+    return $cache;
+}
+
+//장바구니 간소 데이터 갯수 출력
+function get_boxcart_datas_count()
+{
+    $cart_datas = get_boxcart_datas(true);
+
+    return count($cart_datas);
+}
+
+//위시리스트 데이터 가져오기
+function get_wishlist_datas($mb_id, $is_cache=false)
+{
+    global $g5, $member;
+
+    if( !$mb_id ){
+        $mb_id = $member['mb_id'];
+
+        if( !$mb_id ) return array();
+    }
+
+    static $cache = array();
+
+    if( $is_cache && isset($cache[$mb_id]) ){
+        return $cache[$mb_id];
+    }
+
+    $cache[$mb_id] = array();
+    $sql  = " select a.it_id, b.it_name from {$g5['g5_shop_wish_table']} a, {$g5['g5_shop_item_table']} b ";
+    $sql .= " where a.mb_id = '".$mb_id."' and a.it_id  = b.it_id order by a.wi_id desc ";
+    $result = sql_query($sql);
+    for ($i=0; $row=sql_fetch_array($result); $i++)
+    {
+        $key = $row['it_id'];
+        $cache[$mb_id][$key] = $row;
+    }
+
+    return $cache[$mb_id];
+}
+
+//위시리스트 데이터 갯수 출력
+function get_wishlist_datas_count($mb_id='')
+{
+    global $member;
+
+    if( !$mb_id ){
+        $mb_id = $member['mb_id'];
+
+        if( !$mb_id ) return 0;
+    }
+
+    $wishlist_datas = get_wishlist_datas($mb_id, true);
+
+    return is_array($wishlist_datas) ? count($wishlist_datas) : 0;
+}
+
+//각 상품에 대한 위시리스트 담은 갯수 출력
+function get_wishlist_count_by_item($it_id='')
+{
+    global $g5;
+
+    if( !$it_id ) return 0;
+
+    $sql = "select count(a.it_id) as num from {$g5['g5_shop_wish_table']} a, {$g5['g5_shop_item_table']} b where a.it_id  = b.it_id and b.it_id = '$it_id'";
+
+    $row = sql_fetch($sql);
+
+    return (int) $row['num'];
+}
+
+//주문데이터 또는 개인결제 주문데이터 가져오기
+function get_shop_order_data($od_id, $type='item')
+{
+    global $g5;
+    
+    $od_id = preg_replace('/[^0-9a-z_-]/i', '', clean_xss_tags($od_id));
 
     if( $type == 'personal' ){
         $row = sql_fetch("select * from {$g5['g5_shop_personalpay_table']} where pp_id = $od_id ", false);
@@ -2086,7 +2286,8 @@ function get_shop_order_data($od_id, $type='item'){
     return $row;
 }
 
-function exists_inicis_shop_order($oid, $pp=array(), $od_time='', $od_ip=''){
+function exists_inicis_shop_order($oid, $pp=array(), $od_time='', $od_ip='')
+{
 
     $od_ip = $od_ip ? $od_ip : $_SERVER['REMOTE_ADDR'];
 
@@ -2164,54 +2365,93 @@ function get_delivery_company($company)
 }
 
 // 사용후기 썸네일 생성
+function get_itemuse_thumb($contents, $thumb_width, $thumb_height, $is_create=false, $is_crop=true, $crop_mode='center', $is_sharpen=true, $um_value='80/0.5/3'){
+    
+    global $config;
+
+    $img = $filename = $alt = "";
+
+    $matches = get_editor_image($contents, false);
+
+    for($i=0; $i<count($matches[1]); $i++)
+    {
+        // 이미지 path 구함
+        $p = parse_url($matches[1][$i]);
+        if(strpos($p['path'], '/'.G5_DATA_DIR.'/') != 0)
+            $data_path = preg_replace('/^\/.*\/'.G5_DATA_DIR.'/', '/'.G5_DATA_DIR, $p['path']);
+        else
+            $data_path = $p['path'];
+
+        $srcfile = G5_PATH.$data_path;
+
+        if(preg_match("/\.({$config['cf_image_extension']})$/i", $srcfile) && is_file($srcfile)) {
+            $size = @getimagesize($srcfile);
+            if(empty($size))
+                continue;
+
+            $filename = basename($srcfile);
+            $filepath = dirname($srcfile);
+
+            preg_match("/alt=[\"\']?([^\"\']*)[\"\']?/", $matches[0][$i], $malt);
+            $alt = get_text($malt[1]);
+
+            break;
+        }
+    }
+
+    if($filename) {
+        $thumb = thumbnail($filename, $filepath, $filepath, $thumb_width, $thumb_height, $is_create, $is_crop, $crop_mode, $is_sharpen, $um_value);
+
+        if($thumb) {
+            $src = G5_URL.str_replace($filename, $thumb, $data_path);
+            $img = '<img src="'.$src.'" width="'.$thumb_width.'" height="'.$thumb_height.'" alt="'.$alt.'">';
+        }
+    }
+
+    return $img;
+}
+
+// 사용후기에서 후기에 이미지가 있으면 썸네일을 리턴하며 후기에 이미지가 없으면 상품이미지를 리턴합니다.
 function get_itemuselist_thumbnail($it_id, $contents, $thumb_width, $thumb_height, $is_create=false, $is_crop=true, $crop_mode='center', $is_sharpen=true, $um_value='80/0.5/3')
 {
     global $g5, $config;
     $img = $filename = $alt = "";
 
     if($contents) {
-        $matches = get_editor_image($contents, false);
-
-        for($i=0; $i<count($matches[1]); $i++)
-        {
-            // 이미지 path 구함
-            $p = parse_url($matches[1][$i]);
-            if(strpos($p['path'], '/'.G5_DATA_DIR.'/') != 0)
-                $data_path = preg_replace('/^\/.*\/'.G5_DATA_DIR.'/', '/'.G5_DATA_DIR, $p['path']);
-            else
-                $data_path = $p['path'];
-
-            $srcfile = G5_PATH.$data_path;
-
-            if(preg_match("/\.({$config['cf_image_extension']})$/i", $srcfile) && is_file($srcfile)) {
-                $size = @getimagesize($srcfile);
-                if(empty($size))
-                    continue;
-
-                $filename = basename($srcfile);
-                $filepath = dirname($srcfile);
-
-                preg_match("/alt=[\"\']?([^\"\']*)[\"\']?/", $matches[0][$i], $malt);
-                $alt = get_text($malt[1]);
-
-                break;
-            }
-        }
-
-        if($filename) {
-            $thumb = thumbnail($filename, $filepath, $filepath, $thumb_width, $thumb_height, $is_create, $is_crop, $crop_mode, $is_sharpen, $um_value);
-
-            if($thumb) {
-                $src = G5_URL.str_replace($filename, $thumb, $data_path);
-                $img = '<img src="'.$src.'" width="'.$thumb_width.'" height="'.$thumb_height.'" alt="'.$alt.'">';
-            }
-        }
+        $img = get_itemuse_thumb($contents, $thumb_width, $thumb_height);
     }
 
     if(!$img)
         $img = get_it_image($it_id, $thumb_width, $thumb_height);
 
     return $img;
+}
+
+function shop_is_taxsave($od, $is_view_receipt=false){
+	global $default, $is_memeber;
+
+	$od_pay_type = '';
+
+	if( $od['od_settle_case'] == '무통장' ){
+		$od_pay_type = 'account';
+	} else if ( $od['od_settle_case'] == '계좌이체' ) {
+		$od_pay_type = 'vbank';
+	} else if ( $od['od_settle_case'] == '가상계좌' ) {
+		$od_pay_type = 'transfer';
+	}
+	
+	if( $od_pay_type ) {
+		if( $default['de_taxsave_use'] && strstr( $default['de_taxsave_types'], $od_pay_type ) ){
+			return 1;
+		}
+		
+		// 아직 현금영수증 받기전 상태일때만
+		if( $is_view_receipt && ! $od['od_cash'] && in_array($od['od_settle_case'], array('계좌이체', '가상계좌')) && ! strstr( $default['de_taxsave_types'], $od_pay_type ) ){
+			return 2;
+		}
+	}
+
+	return 0;
 }
 
 // 장바구니 상품삭제
@@ -2253,7 +2493,6 @@ function cart_item_clean()
     sql_query($sql);
 }
 
-
 // 임시주문 데이터로 주문 필드 생성
 function make_order_field($data, $exclude)
 {
@@ -2275,6 +2514,47 @@ function make_order_field($data, $exclude)
     return $field;
 }
 
+// 주문요청기록 로그를 남깁니다.
+function add_order_post_log($msg='', $code='error'){
+    global $g5, $member;
+    
+    if( empty($_POST) ) return;
+
+    $post_data = base64_encode(serialize($_POST));
+    $od_id = get_session('ss_order_id');
+
+    if( $code === 'delete' ){
+        sql_query(" delete from {$g5['g5_shop_post_log_table']} where (oid = '$od_id' and mb_id = '{$member['mb_id']}') OR ol_datetime < '".date('Y-m-d H:i:s', strtotime('-15 day', G5_SERVER_TIME))."' ", false);
+        return;
+    }
+
+    $sql = "insert into `{$g5['g5_shop_post_log_table']}`
+            set oid = '$od_id',
+            mb_id = '{$member['mb_id']}',
+            post_data = '$post_data',
+            ol_code = '$code',
+            ol_msg = '$msg',
+            ol_datetime = '".G5_TIME_YMDHIS."',
+            ol_ip = '{$_SERVER['REMOTE_ADDR']}'";
+
+    if( $result = sql_query($sql, false) ){
+        sql_query(" delete from {$g5['g5_shop_post_log_table']} where ol_datetime < '".date('Y-m-d H:i:s', strtotime('-15 day', G5_SERVER_TIME))."' ", false);
+    } else {
+        if(!sql_query(" DESC {$g5['g5_shop_post_log_table']} ", false)) {
+            sql_query(" CREATE TABLE IF NOT EXISTS `{$g5['g5_shop_post_log_table']}` (
+                          `oid` bigint(20) unsigned NOT NULL,
+                          `mb_id` varchar(255) NOT NULL DEFAULT '',
+                          `post_data` text NOT NULL,
+                          `ol_code` varchar(255) NOT NULL DEFAULT '',
+                          `ol_msg` varchar(255) NOT NULL DEFAULT '',
+                          `ol_datetime` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+                          `ol_ip` varchar(25) NOT NULL DEFAULT '',
+                          PRIMARY KEY (`oid`)
+                        ) ENGINE=MyISAM DEFAULT CHARSET=utf8; ", false);
+        }
+    }
+}
+
 //이니시스의 삼성페이 또는 L.pay 결제가 활성화 되어 있는지 체크합니다.
 function is_inicis_simple_pay(){
     global $default;
@@ -2286,14 +2566,49 @@ function is_inicis_simple_pay(){
     return false;
 }
 
-//이니시스의 삼성페이 또는 L.pay 결제인지 확인합니다.
+//이니시스의 취소된 주문인지 또는 삼성페이 또는 L.pay 결제인지 확인합니다.
 function is_inicis_order_pay($type){
+    global $default, $g5;
+
+    if( $default['de_pg_service'] === 'inicis' && get_session('P_TID') ){
+        $tid = preg_replace('/[^A-Za-z0-9_\-]/', '', get_session('P_TID'));
+        $sql = "select P_TID from `{$g5['g5_shop_inicis_log_table']}` where P_TID = '$tid' and P_STATUS = 'cancel' ";
+
+        $row = sql_fetch($sql);
+
+        if( $row['P_TID'] ){
+            alert("이미 취소된 주문입니다.", G5_SHOP_URL);
+        }
+    }
 
     if( in_array($type, array('삼성페이', 'lpay') ) ){
         return true;
     }
 
     return false;
+}
+
+function get_item_images_info($it, $size=array(), $image_width, $image_height){
+    
+    if( !(is_array($it) && $it) ) return array();
+    $images = array();
+
+    for($i=1; $i<=10; $i++) {
+        if(!$it['it_img'.$i]) continue;
+        $file = G5_DATA_PATH.'/item/'.$it['it_img'.$i];
+        if( $is_exists = run_replace('is_exists_item_file', is_file($file), $it, $i) ){
+            $thumb = get_it_thumbnail($it['it_img'.$i], $image_width, $image_height);
+            $attr = (isset($size[0]) && isset($size[1]) && $size[0] && $size[1]) ? 'width="'.$size[0].'" height="'.$size[1].'" ' : '';
+            $imageurl = G5_DATA_URL.'/item/'.$it['it_img'.$i];
+            $infos = array(
+                'thumb'=>$thumb,
+                'imageurl'=>$imageurl,
+                'imagehtml'=>'<img src="'.$imageurl.'" '.$attr.' alt="'.get_text($it['it_name']).'" id="largeimage_'.$i.'">',
+                );
+            $images[$i] = run_replace('get_image_by_item', $infos, $it, $i, $size);
+        }
+    }
+    return $images; 
 }
 
 //결제방식 이름을 체크하여 치환 대상인 문자열은 따로 리턴합니다.

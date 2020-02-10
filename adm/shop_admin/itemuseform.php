@@ -3,6 +3,8 @@ $sub_menu = '400650';
 include_once('./_common.php');
 include_once(G5_EDITOR_LIB);
 
+$is_id = preg_replace('/[^0-9]/', '', $is_id);
+
 auth_check($auth[$sub_menu], "w");
 
 $sql = " select *
@@ -58,7 +60,7 @@ $qstr .= ($qstr ? '&amp;' : '').'sca='.$sca;
     <tbody>
     <tr>
         <th scope="row">상품명</th>
-        <td><a href="<?php echo G5_SHOP_URL; ?>/item.php?it_id=<?php echo $is['it_id']; ?>"><?php echo $is['it_name']; ?></a></td>
+        <td><a href="<?php echo shop_item_url($is['it_id']); ?>"><?php echo $is['it_name']; ?></a></td>
     </tr>
     <tr>
         <th scope="row">이름</th>
@@ -66,7 +68,7 @@ $qstr .= ($qstr ? '&amp;' : '').'sca='.$sca;
     </tr>
     <tr>
         <th scope="row">평점</th>
-        <td><img src="<?php echo G5_URL; ?>/shop/img/s_star<?php echo $is['is_score']; ?>.png"> (<?php echo $is['is_score']; ?>점)</td>
+        <td><img src="<?php echo G5_URL; ?>/shop/img/s_star<?php echo $is['is_score']; ?>.png" width="100"> (<?php echo $is['is_score']; ?>점)</td>
     </tr>
     <tr>
         <th scope="row"><label for="is_subject">제목</label></th>
@@ -99,9 +101,9 @@ $qstr .= ($qstr ? '&amp;' : '').'sca='.$sca;
     </table>
 </div>
 
-<div class="btn_confirm01 btn_confirm">
-    <input type="submit" value="확인" class="btn_submit" accesskey="s">
-    <a href="./itemuselist.php?<?php echo $qstr; ?>">목록</a>
+<div class="btn_fixed_top">
+    <a href="./itemuselist.php?<?php echo $qstr; ?>" class="btn_02 btn">목록</a>
+    <input type="submit" value="확인" class="btn_submit btn" accesskey="s">
 </div>
 </form>
 
