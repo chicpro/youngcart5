@@ -2,10 +2,10 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 
 // 장바구니 또는 위시리스트 ajax 스크립트
-add_javascript('<script src="'.G5_THEME_JS_URL.'/theme.shop.list.js"></script>', 10);
+add_javascript('<script src="'.G5_THEME_JS_URL.'/theme.shop.list.js"></script>', 10, G5_JS_VER);
 ?>
 
 <!-- 상품진열 10 시작 { -->
@@ -29,7 +29,7 @@ foreach((array) $list as $row){
     if( $i && ($i % $list_mod == 0) ){
         $classes[] = 'row-clear';
     }
-    
+
     $i++;   // 변수 i 를 증가
 
     if ($i === 1) {
@@ -39,7 +39,7 @@ foreach((array) $list as $row){
             echo "<ul class=\"sct sct_10 lists-row\">\n";
         }
     }
-	
+
     echo "<li class=\"sct_li ".implode(' ', $classes)."\" data-css=\"nocss\" style=\"height:auto\">\n";
 	echo "<div class=\"sct_img\">\n";
 
@@ -54,7 +54,7 @@ foreach((array) $list as $row){
     if ($this->href) {
         echo "</a>\n";
     }
-    
+
     if ( !$is_soldout ){    // 품절 상태가 아니면 출력합니다.
         echo "<div class=\"sct_btn list-10-btn\">
             <button type=\"button\" class=\"btn_cart sct_cart\" data-it_id=\"{$row['it_id']}\"><i class=\"fa fa-shopping-cart\" aria-hidden=\"true\"></i> 장바구니</button>\n";
@@ -62,7 +62,7 @@ foreach((array) $list as $row){
 	}
 
 	echo "<div class=\"cart-layer\"></div>\n";
-	
+
 	if ($this->view_it_icon) {
         // 품절
         if ($is_soldout) {
@@ -70,14 +70,14 @@ foreach((array) $list as $row){
         }
     }
     echo "</div>\n";
-	
+
 	echo "<div class=\"sct_ct_wrap\">\n";
-    
+
 	// 사용후기 평점표시
 	if ($this->view_star && $star_score) {
         echo "<div class=\"sct_star\"><span class=\"sound_only\">고객평점</span><img src=\"".G5_SHOP_URL."/img/s_star".$star_score.".png\" alt=\"별점 ".$star_score."점\" class=\"sit_star\"></div>\n";
     }
-	
+
     if ($this->view_it_id) {
         echo "<div class=\"sct_id\">&lt;".stripslashes($row['it_id'])."&gt;</div>\n";
     }
@@ -93,7 +93,7 @@ foreach((array) $list as $row){
     if ($this->href) {
         echo "</a></div>\n";
     }
-	
+
 	if ($this->view_it_basic && $row['it_basic']) {
         echo "<div class=\"sct_basic\">".stripslashes($row['it_basic'])."</div>\n";
     }
@@ -111,12 +111,12 @@ foreach((array) $list as $row){
             }
             echo "</div>\n";
         }
-        
+
         // 위시리스트 + 공유 버튼 시작
         echo "<div class=\"sct_op_btn\">\n";
         echo "<button type=\"button\" class=\"btn_wish\" data-it_id=\"{$row['it_id']}\"><span class=\"sound_only\">위시리스트</span><i class=\"fa fa-heart-o\" aria-hidden=\"true\"></i></button>\n";
         echo "<button type=\"button\" class=\"btn_share\"><span class=\"sound_only\">공유하기</span><i class=\"fa fa-share-alt\" aria-hidden=\"true\"></i></button>\n";
-        
+
         echo "<div class=\"sct_sns_wrap\">";
         if ($this->view_sns) {
             $sns_top = $this->img_height + 10;
@@ -133,7 +133,7 @@ foreach((array) $list as $row){
         echo "<div class=\"sct_sns_bg\"></div>";
         echo "</div></div>\n";
         // 위시리스트 + 공유 버튼 끝
-	
+
     echo "</div>";
 
         if ($this->view_it_icon) {
@@ -141,7 +141,7 @@ foreach((array) $list as $row){
         }
 
 	echo "</div>\n";
-	
+
     echo "</li>\n";
 }   //end foreach
 
@@ -160,5 +160,5 @@ $(function (){
     $('.sct_sns_bg, .sct_sns_cls').click(function(){
 	    $('.sct_sns_wrap').hide();
 	});
-});			
+});
 </script>

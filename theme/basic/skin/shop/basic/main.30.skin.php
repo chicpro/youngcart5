@@ -2,10 +2,10 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 
 // 관련상품 스킨은 사품을 한줄에 하나만 표시하며 해당 상품에 관련상품이 등록되어 있는 경우 기본으로 7개까지 노출합니다.
-add_javascript('<script src="'.G5_THEME_JS_URL.'/theme.shop.list.js"></script>', 10);
+add_javascript('<script src="'.G5_THEME_JS_URL.'/theme.shop.list.js"></script>', 10, G5_JS_VER);
 ?>
 
 <!-- 상품진열 30 시작 { -->
@@ -50,7 +50,7 @@ foreach((array) $list as $row){
     if ($this->href) {
         echo "</a>\n";
     }
-    
+
     // 할인율 표시 ( 전화문의가 아니며 판매가격 과 시중가격 이 있을때 표시 (시중가격-판매가격)/시중가격*100 )
     if ($row['it_cust_price'] && $row['it_price'] && !$row['it_tel_inq']) {
 
@@ -58,7 +58,7 @@ foreach((array) $list as $row){
 
         echo '<span class="sct_disc">'.$sale_per.'</span>'.PHP_EOL;
     }
-    
+
 	if ($this->view_it_icon) {
         // 품절
         if (is_soldout($row['it_id'], true)) {
@@ -66,14 +66,14 @@ foreach((array) $list as $row){
         }
     }
     echo "</div>\n";
-	
+
 	echo "<div class=\"sct_ct_wrap\">\n";
 
 	// 사용후기 평점표시
 	if ($this->view_star && $star_score) {
         echo "<div class=\"sct_star\"><span class=\"sound_only\">고객평점</span><img src=\"".G5_SHOP_URL."/img/s_star".$star_score.".png\" alt=\"별점 ".$star_score."점\" class=\"sit_star\"></div>\n";
     }
-	
+
     if ($this->view_it_id) {
         echo "<div class=\"sct_id\">&lt;".stripslashes($row['it_id'])."&gt;</div>\n";
     }
@@ -89,7 +89,7 @@ foreach((array) $list as $row){
     if ($this->href) {
         echo "</a></div>\n";
     }
-	
+
 	if ($this->view_it_basic && $row['it_basic']) {
         echo "<div class=\"sct_basic\">".stripslashes($row['it_basic'])."</div>\n";
     }
@@ -97,23 +97,23 @@ foreach((array) $list as $row){
     if ($this->view_it_cust_price || $this->view_it_price) {
 
         echo "<div class=\"sct_cost\">\n";
-		
+
 		if ($this->view_it_cust_price && $row['it_cust_price']) {
             echo "<span class=\"sct_dict\">".display_price($row['it_cust_price'])."</span>\n";
         }
-		
+
         if ($this->view_it_price) {
             echo display_price(get_price($row), $row['it_tel_inq'])."\n";
         }
         echo "</div>\n";
     }
-	
-	
+
+
 	// 위시리스트 + 공유 버튼 시작 {
 	echo "<div class=\"sct_op_btn\">\n";
 	echo "<button type=\"button\" class=\"btn_wish\" data-it_id=\"{$row['it_id']}\"><span class=\"sound_only\">위시리스트</span><i class=\"fa fa-heart-o\" aria-hidden=\"true\"></i></button>\n";
 	echo "<button type=\"button\" class=\"btn_share\"><span class=\"sound_only\">공유하기</span><i class=\"fa fa-share-alt\" aria-hidden=\"true\"></i></button>\n";
-	
+
 	echo "<div class=\"sct_sns_wrap\">";
 	if ($this->view_sns) {
         $sns_top = $this->img_height + 10;
@@ -132,11 +132,11 @@ foreach((array) $list as $row){
 	// } 위시리스트 + 공유 버튼 끝
 
 	echo "</div>\n";
-	
+
 	if ($this->view_it_icon) {
         echo "<div class=\"sit_icon_li\">".item_icon($row)."</div>\n";
     }
-	
+
     echo "</li>\n";
 }
 
@@ -155,6 +155,6 @@ $(function (){
     $('.sct_sns_bg, .sct_sns_cls').click(function(){
 	    $('.sct_sns_wrap').hide();
 	});
-});			
+});
 </script>
 

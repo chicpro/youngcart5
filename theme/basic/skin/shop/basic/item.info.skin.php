@@ -2,7 +2,7 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <script src="<?php echo G5_JS_URL; ?>/viewimageresize.js"></script>
@@ -34,18 +34,18 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	        <li><button type="button" rel="#sit_dex">배송/교환</button></li>
 	    </ul>
 	    <ul class="tab_con">
-	
+
 	        <!-- 상품 정보 시작 { -->
 	        <li id="sit_inf">
 	            <h2 class="contents_tit"><span>상품 정보</span></h2>
-	
+
 	            <?php if ($it['it_explan']) { // 상품 상세설명 ?>
 	            <h3>상품 상세설명</h3>
 	            <div id="sit_inf_explan">
 	                <?php echo conv_content($it['it_explan'], 1); ?>
 	            </div>
 	            <?php } ?>
-	
+
 	            <?php
 	            if ($it['it_info_value']) { // 상품 정보 고시
 	                $info_data = unserialize(stripslashes($it['it_info_value']));
@@ -77,7 +77,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	                }
 	            } //if
 	            ?>
-	
+
 	        </li>
 	        <!-- 사용후기 시작 { -->
 	        <li id="sit_use">
@@ -85,18 +85,18 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            <div id="itemuse"><?php include_once(G5_SHOP_PATH.'/itemuse.php'); ?></div>
 	        </li>
 	        <!-- } 사용후기 끝 -->
-	
+
 	        <!-- 상품문의 시작 { -->
 	        <li id="sit_qa">
 	            <h2>상품문의</h2>
 	            <div id="itemqa"><?php include_once(G5_SHOP_PATH.'/itemqa.php'); ?></div>
 	        </li>
 	        <!-- } 상품문의 끝 -->
-	        
+
 	        <!-- 배송/교환 시작 { -->
 	        <li id="sit_dex">
 	            <h2>배송/교환정보</h2>
-	            
+
 	            <?php if ($default['de_baesong_content']) { // 배송정보 내용이 있다면 ?>
 	            <!-- 배송 시작 { -->
 	            <div id="sit_dvr">
@@ -105,7 +105,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            </div>
 	            <!-- } 배송 끝 -->
 	            <?php } ?>
-	
+
 	            <?php if ($default['de_change_content']) { // 교환/반품 내용이 있다면 ?>
 	            <!-- 교환 시작 { -->
 	            <div id="sit_ex" >
@@ -114,7 +114,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            </div>
 	            <!-- } 교환 끝 -->
 	            <?php } ?>
-	            
+
 	        </li>
 	        <!-- } 배송/교환  끝 -->
 	    </ul>
@@ -122,7 +122,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	<script>
 	$(function (){
 	    $(".tab_con>li").hide();
-	    $(".tab_con>li:first").show();   
+	    $(".tab_con>li:first").show();
 	    $(".tab_tit li button").click(function(){
 	        $(".tab_tit li button").removeClass("selected");
 	        $(this).addClass("selected");
@@ -154,7 +154,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	        </section>
 	        <!-- } 추가옵션 끝 -->
 	        <?php } // end if?>
-            
+
             <?php if ($is_orderable) { ?>
 	        <!-- 선택된 옵션 시작 { -->
 	        <section class="sit_sel_option">
@@ -178,17 +178,17 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	        </section>
 	        <!-- } 선택된 옵션 끝 -->
 
-			<div class="sum_section">        
+			<div class="sum_section">
 		        <div class="sit_tot_price"></div>
-				
+
 				<div class="sit_order_btn">
 					<button type="submit" onclick="document.pressed=this.value;" value="장바구니" class="sit_btn_cart">장바구니</button>
-		            <button type="submit" onclick="document.pressed=this.value;" value="바로구매" class="sit_btn_buy">바로구매</button> 
+		            <button type="submit" onclick="document.pressed=this.value;" value="바로구매" class="sit_btn_buy">바로구매</button>
 		       </div>
 			</div>
             <?php } ?>
-			
-	    </div>   
+
+	    </div>
 	</div>
 </section>
 
@@ -199,7 +199,7 @@ jQuery(function($){
     $(document).on("select_it_option_change", "select.it_option", function(e, $othis) {
         var value = $othis.val(),
             change_id = $othis.attr("id").replace("it_option_", "it_side_option_");
-        
+
         if( $("#"+change_id).length ){
             $("#"+change_id).val(value).attr("selected", "selected");
         }
@@ -208,7 +208,7 @@ jQuery(function($){
     $(document).on("select_it_option_post", "select.it_option", function(e, $othis, idx, sel_count, data) {
         var value = $othis.val(),
             change_id = $othis.attr("id").replace("it_option_", "it_side_option_");
-        
+
         $("select.it_side_option").eq(idx+1).empty().html(data).attr("disabled", false);
 
         // select의 옵션이 변경됐을 경우 하위 옵션 disabled
@@ -218,7 +218,7 @@ jQuery(function($){
     });
 
     $(document).on("add_sit_sel_option", "#sit_sel_option", function(e, opt) {
-        
+
         opt = opt.replace('name="ct_qty[', 'name="'+change_name+'[');
 
         var $opt = $(opt);
@@ -267,7 +267,7 @@ jQuery(function($){
             mode = $this.text(),
             $sit_sel_el = $("#sit_sel_option"),
             li_parent_index = $this.closest('li').index();
-        
+
         if( ! $sit_sel_el.length ){
             alert("el 에러");
             return false;

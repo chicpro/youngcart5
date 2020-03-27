@@ -2,7 +2,7 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <script src="<?php echo G5_JS_URL; ?>/viewimageresize.js"></script>
@@ -21,7 +21,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
             <a href="<?php echo $itemuse_list; ?>" class="btn01 itemuse_list">더보기</a>
         </div>
     </div>
-    
+
     <?php
     $thumbnail_width = 500;
 
@@ -44,7 +44,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
     ?>
 
         <li class="sit_use_li">
-			<span class="sit_thum"><?php echo get_itemuselist_thumbnail($row['it_id'], $row['is_content'], 100, 100); ?></span> 
+			<span class="sit_thum"><?php echo get_itemuselist_thumbnail($row['it_id'], $row['is_content'], 100, 100); ?></span>
             <dl class="sit_use_dl">
                 <dt>평점<dt>
                 <dd class="sit_use_star"><img src="<?php echo G5_SHOP_URL; ?>/img/s_star<?php echo $is_star; ?>.png" alt="별<?php echo $is_star; ?>개" width="85"></dd>
@@ -57,7 +57,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
 
             <div id="sit_use_con_<?php echo $i; ?>" class="sit_use_con">
                 <div class="sit_use_p">
-                    <?php echo $is_content; // 사용후기 내용 ?> 
+                    <?php echo $is_content; // 사용후기 내용 ?>
                 </div>
 
                 <?php if ($is_admin || $row['mb_id'] == $member['mb_id']) { ?>

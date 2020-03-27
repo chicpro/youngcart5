@@ -2,7 +2,7 @@
 if (!defined("_GNUBOARD_")) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <script src="<?php echo G5_JS_URL; ?>/viewimageresize.js"></script>
@@ -77,7 +77,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">',
 					                <dd><i class="fa fa-clock-o" aria-hidden="true"></i> <?php echo substr($row['is_time'],0,10); ?></dd>
 					            </dl>
 	            			</div>
-	            			
+
 	            			<div class="review_summ">
 	            				<?php echo get_itemuselist_thumbnail($row['it_id'], $row['is_content'], 50, 50); ?>
 	            				<p>
@@ -85,7 +85,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">',
 	            					<span class="sound_only">평가점수</span><img src="<?php echo G5_URL; ?>/shop/img/s_star<?php echo $star; ?>.png" alt="별<?php echo $star; ?>개" width="80">
 	            				</p>
 	            			</div>
-	            			
+
 	            			<div id="sps_con_<?php echo $i; ?>" class="review_bt_cnt">
 				                <?php echo $is_content; // 사용후기 내용 ?>
 				                <?php
@@ -99,7 +99,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">',
 				                            <span><?php echo $row2['it_name']; ?></span>
 				                        </a>
 				                    </div>
-				
+
 				                    <section>
 				                        <h2 class="is_use_reply"><?php echo get_text($row['is_reply_subject']); ?></h2>
 				                        <div class="sps_dl">
@@ -119,7 +119,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">',
 				</div>
 				<!-- 사용후기 자세히 끝 -->
 			</div>
-			
+
 			<div class="sps_info">
     			<span class="sound_only">작성자</span>
                 <span class="sps_if_wt"><?php echo get_text($row['is_name']); ?></span>
@@ -149,7 +149,7 @@ $(function(){
         var container = $(".review_detail_cnt");
         if( container.has(e.target).length === 0)
         container.hide();
-    });   
+    });
 });
 
 // 후기 상세 글쓰기 옵션

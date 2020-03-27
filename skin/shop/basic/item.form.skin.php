@@ -2,14 +2,14 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 <div id="sit_ov_from">
 	<form name="fitem" method="post" action="<?php echo $action_url; ?>" onsubmit="return fitem_submit(this);">
 	<input type="hidden" name="it_id[]" value="<?php echo $it_id; ?>">
 	<input type="hidden" name="sw_direct">
 	<input type="hidden" name="url">
-	
+
 	<div id="sit_ov_wrap">
 	    <!-- 상품이미지 미리보기 시작 { -->
 	    <div id="sit_pvi">
@@ -20,19 +20,19 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	        for($i=1; $i<=10; $i++) {
 	            if(!$it['it_img'.$i])
 	                continue;
-	
+
 	            $img = get_it_thumbnail($it['it_img'.$i], $default['de_mimg_width'], $default['de_mimg_height']);
-	
+
 	            if($img) {
 	                // 썸네일
 	                $thumb = get_it_thumbnail($it['it_img'.$i], 70, 70);
 	                $thumbnails[] = $thumb;
 	                $big_img_count++;
-	
+
 	                echo '<a href="'.G5_SHOP_URL.'/largeimage.php?it_id='.$it['it_id'].'&amp;no='.$i.'" target="_blank" class="popup_item_image">'.$img.'</a>';
 	            }
 	        }
-	
+
 	        if($big_img_count == 0) {
 	            echo '<img src="'.G5_SHOP_URL.'/img/no_image.gif" alt="">';
 	        }
@@ -59,7 +59,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	        ?>
 	    </div>
 	    <!-- } 상품이미지 미리보기 끝 -->
-	
+
 	    <!-- 상품 요약정보 및 구매 시작 { -->
 	    <section id="sit_ov" class="2017_renewal_itemform">
 	        <h2 id="sit_title"><?php echo stripslashes($it['it_name']); ?> <span class="sound_only">요약정보 및 구매</span></h2>
@@ -69,16 +69,16 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            상품 선택옵션 <?php echo $option_count; ?> 개, 추가옵션 <?php echo $supply_count; ?> 개
 	        </p>
 	        <?php } ?>
-	        
+
 	        <div id="sit_star_sns">
 	            <?php if ($star_score) { ?>
-	            <span class="sound_only">고객평점</span> 
+	            <span class="sound_only">고객평점</span>
 	            <img src="<?php echo G5_SHOP_URL; ?>/img/s_star<?php echo $star_score?>.png" alt="" class="sit_star" width="100">
-	            <span class="sound_only">별<?php echo $star_score?>개</span> 
+	            <span class="sound_only">별<?php echo $star_score?>개</span>
 	            <?php } ?>
-	            
+
 	            <span class="">사용후기 <?php echo $it['it_use_cnt']; ?> 개</span>
-	            
+
 	            <div id="sit_btn_opt">
 	            	<span id="btn_wish"><i class="fa fa-heart-o" aria-hidden="true"></i><span class="sound_only">위시리스트</span><span class="btn_wish_num"><?php echo get_wishlist_count_by_item($it['it_id']); ?></span></span>
 	            	<button type="button" class="btn_sns_share"><i class="fa fa-share-alt" aria-hidden="true"></i><span class="sound_only">sns 공유</span></button>
@@ -98,7 +98,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            container.hide();
 	        });
 	        </script>
-	        
+
 	        <div class="sit_info">
 	            <table class="sit_ov_tbl">
 	            <colgroup>
@@ -106,7 +106,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	                <col>
 	            </colgroup>
 	            <tbody>
-	            
+
 	            <?php if (!$it['it_use']) { // 판매가능이 아닐 경우 ?>
 	            <tr>
 	                <th scope="row">판매가격</th>
@@ -124,7 +124,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	                <td><?php echo display_price($it['it_cust_price']); ?></td>
 	            </tr>
 	            <?php } // 시중가격 끝 ?>
-	
+
 	            <tr class="tr_price">
 	                <th scope="row">판매가격</th>
 	                <td>
@@ -133,28 +133,28 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	                </td>
 	            </tr>
 	            <?php } ?>
-	            	
+
 	            <?php if ($it['it_maker']) { ?>
 	            <tr>
 	                <th scope="row">제조사</th>
 	                <td><?php echo $it['it_maker']; ?></td>
 	            </tr>
 	            <?php } ?>
-	
+
 	            <?php if ($it['it_origin']) { ?>
 	            <tr>
 	                <th scope="row">원산지</th>
 	                <td><?php echo $it['it_origin']; ?></td>
 	            </tr>
 	            <?php } ?>
-	
+
 	            <?php if ($it['it_brand']) { ?>
 	            <tr>
 	                <th scope="row">브랜드</th>
 	                <td><?php echo $it['it_brand']; ?></td>
 	            </tr>
 	            <?php } ?>
-	
+
 	            <?php if ($it['it_model']) { ?>
 	            <tr>
 	                <th scope="row">모델</th>
@@ -170,7 +170,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            </tr>
 	            */
 	            ?>
-	
+
 	            <?php if ($config['cf_use_point']) { // 포인트 사용한다면 ?>
 	            <tr>
 	                <th scope="row">포인트</th>
@@ -188,7 +188,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            <?php } ?>
 	            <?php
 	            $ct_send_cost_label = '배송비결제';
-	
+
 	            if($it['it_sc_type'] == 1)
 	                $sc_method = '무료배송';
 	            else {
@@ -230,7 +230,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	        <!-- 선택옵션 시작 { -->
 	        <section class="sit_option">
 	            <h3>선택옵션</h3>
-	 
+
 	            <?php // 선택옵션
 	            echo $option_item;
 	            ?>
@@ -239,7 +239,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	        <?php
 	        }
 	        ?>
-	
+
 	        <?php
 	        if($supply_item) {
 	        ?>
@@ -254,7 +254,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	        <?php
 	        }
 	        ?>
-	
+
 	        <?php if ($is_orderable) { ?>
 	        <!-- 선택된 옵션 시작 { -->
 	        <section id="sit_sel_option">
@@ -291,22 +291,22 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            <?php } ?>
 	        </section>
 	        <!-- } 선택된 옵션 끝 -->
-	
+
 	        <!-- 총 구매액 -->
 	        <div id="sit_tot_price"></div>
 	        <?php } ?>
-	
+
 	        <?php if($is_soldout) { ?>
 	        <p id="sit_ov_soldout">상품의 재고가 부족하여 구매할 수 없습니다.</p>
 	        <?php } ?>
-	
+
 	        <div id="sit_ov_btn">
 	            <?php if ($is_orderable) { ?>
 	            <button type="submit" onclick="document.pressed=this.value;" value="장바구니" class="sit_btn_cart">장바구니</button>
 	            <button type="submit" onclick="document.pressed=this.value;" value="바로구매" class="sit_btn_buy">바로구매</button>
 	            <?php } ?>
 	            <a href="javascript:item_wish(document.fitem, '<?php echo $it['it_id']; ?>');" class="sit_btn_wish"><i class="fa fa-heart-o" aria-hidden="true"></i><span class="sound_only">위시리스트</span></a>
-	            	
+
 	            <?php if(!$is_orderable && $it['it_soldout'] && $it['it_stock_sms']) { ?>
 	            <a href="javascript:popup_stocksms('<?php echo $it['it_id']; ?>');" id="sit_btn_alm">재입고알림</a>
 	            <?php } ?>
@@ -314,7 +314,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            <div class="itemform-naverpay"><?php echo $naverpay_request_js.$naverpay_button_js; ?></div>
 	            <?php } ?>
 	        </div>
-	
+
 	        <script>
 	        // 상품보관
 	        function item_wish(f, it_id)
@@ -323,7 +323,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	            f.action = "<?php echo G5_SHOP_URL; ?>/wishupdate.php";
 	            f.submit();
 	        }
-	
+
 	        // 추천메일
 	        function popup_item_recommend(it_id)
 	        {
@@ -339,7 +339,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	                popup_window(url, "itemrecommend", opt);
 	            }
 	        }
-	
+
 	        // 재입고SMS 알림
 	        function popup_stocksms(it_id)
 	        {
@@ -361,7 +361,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 	        echo '<span class="sound_only">이 분류에 등록된 다른 상품이 없습니다.</span>';
 	    }
 	    ?>
-	</div>   
+	</div>
     <!-- } 다른 상품 보기 끝 -->
 	</form>
 </div>

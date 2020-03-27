@@ -2,7 +2,7 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 
 // 관련상품 스킨은 사품을 한줄에 하나만 표시하며 해당 상품에 관련상품이 등록되어 있는 경우 기본으로 7개까지 노출합니다.
 ?>
@@ -95,16 +95,16 @@ foreach((array) $list as $row){
         echo "</div>\n";
 
     }
-	
+
 	echo "<div class=\"\">
 		<button type=\"button\" class=\"\" data-it_id=\"{$row['it_id']}\"><i class=\"fa fa-shopping-cart\" aria-hidden=\"true\"></i> 장바구니</button>\n";
 	echo "</div>\n";
-	
+
 	// 위시리스트 + 공유 버튼 시작
 	echo "<div class=\"sct_op_btn\">\n";
 	echo "<button type=\"button\" class=\"btn_wish\" data-it_id=\"{$row['it_id']}\"><span class=\"sound_only\">위시리스트</span><i class=\"fa fa-heart-o\" aria-hidden=\"true\"></i></button>\n";
 	echo "<button type=\"button\" class=\"btn_share\"><span class=\"sound_only\">공유하기</span><i class=\"fa fa-share-alt\" aria-hidden=\"true\"></i></button>\n";
-	
+
 	echo "<div class=\"sct_sns_wrap\">";
 	if ($this->view_sns) {
         $sns_top = $this->img_height + 10;

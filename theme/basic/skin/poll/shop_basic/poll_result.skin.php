@@ -2,7 +2,7 @@
 if (!defined("_GNUBOARD_")) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.$poll_skin_url.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.$poll_skin_url.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <!-- 설문조사 결과 시작 { -->
@@ -16,7 +16,7 @@ add_stylesheet('<link rel="stylesheet" href="'.$poll_skin_url.'/style.css">', 0)
             <ol>
             	<!-- *** 투표수가 가장 많은 것은 li이에 클래스 poll_1st를 붙여주세요 / 수정후 삭제 -->
             	<li class="poll_1st">
-                    <span>현재 가장 높은 득표율</span>   
+                    <span>현재 가장 높은 득표율</span>
                     <div class="poll_result_graph">
                         <span style="width:90%"></span>
                     </div>
@@ -26,10 +26,10 @@ add_stylesheet('<link rel="stylesheet" href="'.$poll_skin_url.'/style.css">', 0)
                     </div>
                 </li>
                 <!-- *** 투표수가 가장 많은 것은 li이에 클래스 poll_1st를 붙여주세요 / 수정후 삭제 -->
-                
+
             	<?php for ($i=1; $i<=count($list); $i++) {  ?>
                 <li>
-                    <span><?php echo $list[$i]['content'] ?></span>   
+                    <span><?php echo $list[$i]['content'] ?></span>
                     <div class="poll_result_graph">
                         <span style="width:<?php echo number_format($list[$i]['rate'], 1) ?>%"></span>
                     </div>
@@ -82,7 +82,7 @@ add_stylesheet('<link rel="stylesheet" href="'.$poll_skin_url.'/style.css">', 0)
             </div>
         	<?php }  ?>
             <?php echo captcha_html(); ?>
-			<button type="submit" class="btn_submit">의견남기기</button>           
+			<button type="submit" class="btn_submit">의견남기기</button>
             </form>
             <?php }  ?>
 

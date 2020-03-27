@@ -2,7 +2,7 @@
 if (!defined("_GNUBOARD_")) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <script src="<?php echo G5_JS_URL; ?>/viewimageresize.js"></script>
@@ -90,7 +90,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">',
                 <span><?php echo substr($row['iq_time'],2,8); ?></span>
             </div>
         </section>
-  
+
         <div id="sqa_con_<?php echo $i; ?>" class="sqa_con" style="display:none;">
             <div class="sit_qa_qaq">
                 <strong class="sound_only">문의내용</strong>
@@ -105,7 +105,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">',
             </div>
             <?php } ?>
         </div>
-        
+
 		<div class="sqa_con_btn"><button class="sqa_con_<?php echo $i; ?>"><span class="sound_only">내용보기</span><i class="fa fa-chevron-down" aria-hidden="true"></i></button></div>
 
     </li>

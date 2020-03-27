@@ -2,7 +2,7 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 
 /*
 상품리스트가 일정 시간마다 위로 롤링되는 스킨
@@ -106,11 +106,11 @@ foreach((array) $list as $row){
         echo get_sns_share_link('googleplus', $sns_url, $sns_title, G5_SHOP_SKIN_URL.'/img/gplus.png');
         echo "</div>\n";
     }
-	
+
 	if ($this->view_it_icon) {
         echo "<div class=\"sct_icon\">".item_icon($row)."</div>\n";
     }
-	
+
     echo "</li>\n";
 }
 

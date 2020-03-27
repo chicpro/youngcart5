@@ -2,7 +2,7 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <!-- 상품진열 10 시작 { -->
@@ -23,7 +23,7 @@ foreach((array) $list as $row){
     } else { // 1줄 이미지 : 1개
         $sct_last = 'sct_clear';
     }
-    
+
     if ($i == 1) {
         if ($this->css) {
             echo "<ul class=\"{$this->css}\">\n";
@@ -53,12 +53,12 @@ foreach((array) $list as $row){
     if ($this->view_it_id) {
         echo "<div class=\"sct_id\">&lt;".stripslashes($row['it_id'])."&gt;</div>\n";
     }
-	
+
 	// 사용후기 평점표시
 	if ($this->view_star && $star_score) {
         echo "<div class=\"sct_star\"><span class=\"sound_only\">고객평점</span><img src=\"".G5_SHOP_URL."/img/s_star".$star_score.".png\" alt=\"별점 ".$star_score."점\" class=\"sit_star\"></div>\n";
     }
-	
+
     if ($this->href) {
         echo "<div class=\"sct_txt\"><a href=\"{$item_link_href}\">\n";
     }

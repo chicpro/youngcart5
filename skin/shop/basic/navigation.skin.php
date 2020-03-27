@@ -28,8 +28,8 @@ if($is_item_view){
 }
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0);
-add_javascript('<script src="'.G5_JS_URL.'/shop.category.navigation.js"></script>', 10);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0, G5_CSS_VER);
+add_javascript('<script src="'.G5_JS_URL.'/shop.category.navigation.js"></script>', 10, G5_JS_VER);
 ?>
 
 <div id="sct_location" class="<?php echo implode(' ', $location_class);?>"> <!-- class="view_location" --> <!-- view_location는 리스트 말고 상품보기에서만 표시 -->
@@ -69,7 +69,7 @@ jQuery(function($){
     $(document).ready(function() {
         $("#sct_location select").on("change", function(e){
             var url = $(this).find(':selected').attr("data-url");
-            
+
             if (typeof itemlist_ca_id != "undefined" && itemlist_ca_id === this.value) {
                 return false;
             }

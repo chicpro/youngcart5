@@ -2,7 +2,7 @@
 if (!defined("_GNUBOARD_")) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <section class="couponzone_list">
@@ -25,7 +25,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
             continue;
 
         $subj = get_text($row['cz_subject']);
-        
+
         switch($row['cp_method']) {
             case '0':
                 $row3 = get_shop_item($row['cp_target'], true);
@@ -70,7 +70,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
         <h4>'.$cp_target.'</h4>
         <ul>
         	<li>적용 : '.$cp_link.'</li>';
-        
+
         if( $row['cp_minimum'] ){   // 쿠폰에 최소주문금액이 있다면
         	$coupon .= '<li>최소주문금액 : <span class="cp_evt"><b>'.number_format($row['cp_minimum']).'</b>원</span></li>';
         }
@@ -159,7 +159,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
 
 		$coupon .= '<div class="coupon_target">'.PHP_EOL;
 		$coupon .= '<span class="sound_only">적용</span><button class="coupon_info_btn '.$coupon_info_class.'">'.$cp_target.' <i class="fa fa-angle-right" aria-hidden="true"></i></button>'.PHP_EOL;
-        
+
         $coupon .= '<div class="coupon_info">
         <h4>'.$cp_target.'</h4>
         <ul>
@@ -172,12 +172,12 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0
         $coupon .= '</ul>
         <button class="coupon_info_cls"><i class="fa fa-times" aria-hidden="true"></i><span class="sound_only">닫기</span></button>
         </div>'.PHP_EOL;
-		
+
         $coupon .= '</div>'.PHP_EOL;
 
 		$coupon .= '<div class="coupon_date"><span class="sound_only">기한</span>다운로드 후 '.number_format($row['cz_period']).'일</div>'.PHP_EOL;
 		$coupon .= '<div class="coupon_btn"><button type="button" class="coupon_download btn02'.$disabled.'" data-cid="'.$row['cz_id'].'">포인트 '.number_format($row['cz_point']).'점 차감</button></div>'.PHP_EOL;
-        
+
         $coupon .= '</div>'.PHP_EOL;
         $coupon .= '</div>'.PHP_EOL;
         $coupon .= '</li>'.PHP_EOL;

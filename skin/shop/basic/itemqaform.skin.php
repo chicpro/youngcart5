@@ -2,7 +2,7 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <!-- 상품문의 쓰기 시작 { -->
@@ -19,7 +19,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
             <li class="chk_box">
                 <strong class="sound_only">옵션</strong>
                 <input type="checkbox" name="iq_secret" id="iq_secret" value="1" <?php echo $chk_secret; ?> class="selec_chk">
-                <label for="iq_secret"><span></span>비밀글</label> 
+                <label for="iq_secret"><span></span>비밀글</label>
             </li>
             <li>
                 <div class="form_left">
@@ -42,7 +42,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
                 <?php echo $editor_html; ?>
             </li>
         </ul>
-        
+
         <div class="win_btn">
             <button type="submit" class="btn_submit">작성완료</button>
             <button type="button" onclick="self.close();" class="btn_close">닫기</button>

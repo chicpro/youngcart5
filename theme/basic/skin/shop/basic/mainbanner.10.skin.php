@@ -2,7 +2,7 @@
 if (!defined("_GNUBOARD_")) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 add_javascript('<script src="'.G5_JS_URL.'/owlcarousel/owl.carousel.min.js"></script>', 10);
 add_stylesheet('<link rel="stylesheet" href="'.G5_JS_URL.'/owlcarousel/owl.carousel.min.css">', 10);
 
@@ -49,20 +49,20 @@ for ($i=0; $row=sql_fetch_array($result); $i++)
             $item_html .= '</a>';
         $item_html .= '</div>';
     }
-    
+
     $banner_style = $max_height ? 'style="min-height:'.($max_height + 25).'px"' : '';
     if ($i==0) echo '<div id="main_bn"><div class="main_image_area"><div class="main_banner_owl owl-carousel">'.PHP_EOL;
-    
+
     echo $item_html;
 }
 
 if ($i > 0) {
     echo '</div>'.PHP_EOL;
-	
+
 	echo '<div class="btn_wr"><a href="#" class="pager-prev"><i class="fa fa-angle-left"></i></a><div id="slide-counter"></div><a href="#" class="pager-next"><i class="fa fa-angle-right"></i></a> </div>'.PHP_EOL;
 
     echo '</div>'.PHP_EOL;
-    
+
     echo '<div class="main_owl_pager">'.PHP_EOL;
         echo '<div class="owl_pager">
     <ul class="carousel-custom-dots owl-dots">';
@@ -72,7 +72,7 @@ if ($i > 0) {
 			echo '<li class="owl-dot"><a data-slide-index="'.$k.'" href="#">'.$alt_title.'</a></li>'.PHP_EOL;
 			$k++;
 			}
-		
+
     echo '</ul>
     </div>'.PHP_EOL;
     echo '</div>'.PHP_EOL;
@@ -94,7 +94,7 @@ jQuery(function($){
             } else {
                 index = event.item.index ? event.item.index + 1 : 1;
             }
-            
+
             $(event.target).next(".btn_wr").find(".slide-index").text(index);
         }
     }

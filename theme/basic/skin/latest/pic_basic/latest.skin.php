@@ -3,7 +3,7 @@ if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 include_once(G5_LIB_PATH.'/thumbnail.lib.php');
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.$latest_skin_url.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.$latest_skin_url.'/style.css">', 0, G5_CSS_VER);
 $thumb_width = 210;
 $thumb_height = 150;
 ?>
@@ -32,7 +32,7 @@ $thumb_height = 150;
 
             if ($list[$i]['icon_hot']) echo "<span class=\"hot_icon\">H<span class=\"sound_only\">인기글</span></span>";
 
- 
+
             echo "<a href=\"".$list[$i]['href']."\"> ";
             if ($list[$i]['is_notice'])
                 echo "<strong>".$list[$i]['subject']."</strong>";

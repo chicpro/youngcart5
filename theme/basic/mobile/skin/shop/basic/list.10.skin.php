@@ -2,10 +2,10 @@
 if (!defined("_GNUBOARD_")) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 
 // 장바구니 또는 위시리스트 ajax 스크립트
-add_javascript('<script src="'.G5_THEME_JS_URL.'/theme.shop.list.js"></script>', 10);
+add_javascript('<script src="'.G5_THEME_JS_URL.'/theme.shop.list.js"></script>', 10, G5_JS_VER);
 ?>
 
 <?php if(!defined('G5_IS_SHOP_AJAX_LIST') && $config['cf_kakao_js_apikey']) { ?>
@@ -42,7 +42,7 @@ foreach((array) $list as $row){
         }
     }
 
- 
+
    if($i % $this->list_mod == 0)
         $li_clear = ' sct_clear';
     else
@@ -91,7 +91,7 @@ foreach((array) $list as $row){
         echo display_price(get_price($row), $row['it_tel_inq'])."\n";
         echo "</div>\n";
     }
-        
+
     // 위시리스트 + 공유 버튼 시작 {
     echo "<div class=\"sct_op_btn\">\n";
         echo "<button type=\"button\" class=\"btn_wish\" data-it_id=\"{$row['it_id']}\"><span class=\"sound_only\">위시리스트</span><i class=\"fa fa-heart-o\" aria-hidden=\"true\"></i></button>\n";
@@ -152,7 +152,7 @@ jQuery(function($){
             $ul_sct.removeClass("sct_10").addClass("sct_10_list")
             .find(".sct_li").removeAttr("style");
         }
-        
+
         if (typeof g5_cookie_domain != 'undefined') {
             set_cookie("ck_itemlist"+list_ca_id+"_type", type, 1, g5_cookie_domain);
         }

@@ -15,14 +15,14 @@ if($skin)
 $sct_sort_href .= '&amp;sort=';
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <!-- 상품 정렬 선택 시작 { -->
 <section id="sct_sort">
     <h2>상품 정렬</h2>
 
-    <!-- 기타 정렬 옵션 
+    <!-- 기타 정렬 옵션
     <ul>
         <li><a href="<?php echo $sct_sort_href; ?>it_name&amp;sortodr=asc">상품명순</a></li>
         <li><a href="<?php echo $sct_sort_href; ?>it_type1&amp;sortodr=desc">히트상품</a></li>

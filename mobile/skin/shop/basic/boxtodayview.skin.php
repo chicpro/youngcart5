@@ -6,14 +6,14 @@ $tv_div['img_height'] = 100;
 $tv_div['img_length'] = 5; // 한번에 보여줄 이미지 수
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_MSHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <!-- 오늘 본 상품 시작 { -->
 <div id="stv" class="op_area">
     <h2>오늘 본 상품<span id="stv_pg"></span></h2>
     <?php if ($tv_idx) { // 오늘 본 상품이 1개라도 있을 때 ?>
-    
+
     <?php
         $tv_tot_count = 0;
         $k = 0;

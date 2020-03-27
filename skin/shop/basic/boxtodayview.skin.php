@@ -9,7 +9,7 @@ $tv_div['img_height'] = 65;
 $tv_div['img_length'] = 10; // 한번에 보여줄 이미지 수
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <!-- 오늘 본 상품 시작 { -->
@@ -25,7 +25,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
     {
         if(!$rowx['it_id'])
             continue;
-        
+
         $tv_it_id = $rowx['it_id'];
 
         if ($tv_tot_count % $tv_div['img_length'] == 0) $k++;

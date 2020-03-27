@@ -2,7 +2,7 @@
 if (!defined("_GNUBOARD_")) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <script src="<?php echo G5_JS_URL; ?>/viewimageresize.js"></script>
@@ -82,7 +82,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
         <section class="sqa_section">
             <h2><?php echo $iq_subject; ?></h2>
 			<span class="<?php echo $iq_style; ?>"><?php echo $iq_stats; ?></span>
-			
+
             <dl class="sqa_dl">
                 <dt class="sound_only">작성자</dt>
                 <dd><i class="fa fa-user" aria-hidden="true"></i> <?php echo $row['iq_name']; ?></dd>

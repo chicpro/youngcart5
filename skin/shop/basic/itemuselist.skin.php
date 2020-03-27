@@ -2,7 +2,7 @@
 if (!defined("_GNUBOARD_")) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 0, G5_CSS_VER);
 ?>
 
 <script src="<?php echo G5_JS_URL; ?>/viewimageresize.js"></script>
@@ -54,13 +54,13 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
 	                <span><?php echo $row2['it_name']; ?></span>
 	            </a>
 	            <button class="prd_detail" data-url="<?php echo G5_SHOP_URL.'/largeimage.php?it_id='.$row['it_id']; ?>"><i class="fa fa-camera" aria-hidden="true"></i><span class="sound_only">상품 이미지보기</span></button>
-			</div>            
+			</div>
 		</div>
 
         <div class="sps_section">
         	<span class="sound_only">평가점수</span>
             <span><img src="<?php echo G5_URL; ?>/shop/img/s_star<?php echo $star; ?>.png" alt="별<?php echo $star; ?>개" width="80"></span>
-                
+
             <span class="sps_pd_name"><?php echo get_text($row2['it_name']); ?></span>
             <span class="sps_rv_tit"><?php echo get_text($row['is_subject']); ?></span>
             <span class="sps_rv_thum"><?php echo get_itemuse_thumb($row['is_content'], 60, 60); ?></span>
@@ -72,9 +72,9 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
 	                <dt class="sound_only">작성일</dt>
 	                <dd><i class="fa fa-clock-o" aria-hidden="true"></i> <?php echo substr($row['is_time'],0,10); ?></dd>
 	            </dl>
-	            
+
 	        	<button class="sps_con_<?php echo $i; ?> review_detail">내용보기</button>
-	        	
+
 	        	<!-- 사용후기 자세히 시작 -->
 	            <div class="review_detail_cnt">
 	            	<div class="review_detail_in">
@@ -94,7 +94,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
 	            				<span><?php echo get_text($row2['it_name']); ?></span>
 	            				<span class="sound_only">평가점수</span><img src="<?php echo G5_URL; ?>/shop/img/s_star<?php echo $star; ?>.png" alt="별<?php echo $star; ?>개" width="80">
 	            			</div>
-	            			
+
 	            			<div id="sps_con_<?php echo $i; ?>" class="review_bt_cnt">
 				                <?php echo $is_content; // 사용후기 내용 ?>
 				                <?php
@@ -108,7 +108,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_SKIN_URL.'/style.css">', 
 				                            <span><?php echo $row2['it_name']; ?></span>
 				                        </a>
 				                    </div>
-				
+
 				                    <section>
 				                        <h2 class="is_use_reply"><?php echo get_text($row['is_reply_subject']); ?></h2>
 				                        <div class="sps_dl">
@@ -143,7 +143,7 @@ jQuery(function($){
     $(".review_detail").on("click", function(){
         $(this).parent("div").children(".review_detail_cnt").show();
     });
-		
+
     // 사용후기 닫기
     $(document).mouseup(function (e){
         var container = $(".review_detail_cnt");
@@ -167,6 +167,6 @@ jQuery(function($){
         return false;
     });
 });
-				
+
 </script>
 <!-- } 전체 상품 사용후기 목록 끝 -->
