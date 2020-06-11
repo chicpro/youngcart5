@@ -2,7 +2,7 @@
 include_once('./_common.php');
 include_once(G5_LIB_PATH.'/mailer.lib.php');
 
-//삼성페이 또는 lpay 요청으로 왔다면 현재 삼성페이 또는 lpay는 이니시스 밖에 없으므로 $default['de_pg_service'] 값을 이니시스로 변경한다.
+//삼성페이 또는 lpay 또는 이니시스 카카오페이 요청으로 왔다면 현재 삼성페이 또는 lpay 또는 이니시스 카카오페이는 이니시스 밖에 없으므로 $default['de_pg_service'] 값을 이니시스로 변경한다.
 if( is_inicis_order_pay($od_settle_case) && !empty($_POST['P_HASH']) ){
     $default['de_pg_service'] = 'inicis';
 }
@@ -338,7 +338,6 @@ else if ($od_settle_case == "계좌이체")
     $od_receipt_price   = $amount;
     $od_receipt_point   = $i_temp_point;
     $od_receipt_time    = preg_replace("/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/", "\\1-\\2-\\3 \\4:\\5:\\6", $app_time);
-    $od_bank_account    = $od_settle_case;
     $od_deposit_name    = $od_name;
     $od_bank_account    = $bank_name;
     $pg_price           = $amount;
@@ -447,7 +446,7 @@ else if ($od_settle_case == "간편결제")
     if($od_misu == 0)
         $od_status      = '입금';
 }
-else if ( is_inicis_order_pay($od_settle_case) )    //이니시스의 삼성페이 또는 L.pay
+else if ( is_inicis_order_pay($od_settle_case) )    //이니시스의 삼성페이 또는 L.pay 또는 이니시스 카카오페이
 {
     // 이니시스에서만 지원
     include G5_MSHOP_PATH.'/inicis/pay_result.php';
@@ -770,25 +769,7 @@ include_once(G5_SHOP_PATH.'/ordermail2.inc.php');
 // SMS BEGIN --------------------------------------------------------
 // 주문고객과 쇼핑몰관리자에게 SMS 전송
 if($config['cf_sms_use'] && ($default['de_sms_use2'] || $default['de_sms_use3'])) {
-    $is_sms_send = false;
-
-    // 충전식일 경우 잔액이 있는지 체크
-    if($config['cf_icode_id'] && $config['cf_icode_pw']) {
-        $userinfo = get_icode_userinfo($config['cf_icode_id'], $config['cf_icode_pw']);
-
-        if($userinfo['code'] == 0) {
-            if($userinfo['payment'] == 'C') { // 정액제
-                $is_sms_send = true;
-            } else {
-                $minimum_coin = 100;
-                if(defined('G5_ICODE_COIN'))
-                    $minimum_coin = intval(G5_ICODE_COIN);
-
-                if((int)$userinfo['coin'] >= $minimum_coin)
-                    $is_sms_send = true;
-            }
-        }
-    }
+    $is_sms_send = (function_exists('is_sms_send')) ? is_sms_send('orderformupdate') : false;
 
     if($is_sms_send) {
         $sms_contents = array($default['de_sms_cont2'], $default['de_sms_cont3']);

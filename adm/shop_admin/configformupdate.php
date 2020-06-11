@@ -26,6 +26,7 @@ if ($_FILES['mobile_logo_img']['name']) upload_file($_FILES['mobile_logo_img']['
 if ($_FILES['mobile_logo_img2']['name']) upload_file($_FILES['mobile_logo_img2']['tmp_name'], "mobile_logo_img2", G5_DATA_PATH."/common");
 
 $de_kcp_mid = substr($_POST['de_kcp_mid'],0,3);
+$cf_icode_server_port = isset($cf_icode_server_port) ? preg_replace('/[^0-9]/', '', $cf_icode_server_port) : '7295';
 
 // kcp 전자결제를 사용할 때 site key 입력체크
 if($_POST['de_pg_service'] == 'kcp' && !$_POST['de_card_test'] && ($_POST['de_iche_use'] || $_POST['de_vbank_use'] || $_POST['de_hp_use'] || $_POST['de_card_use'])) {
@@ -159,6 +160,7 @@ $check_sanitize_keys = array(
 'de_inicis_sign_key',           //KG이니시스 웹결제 사인키
 'de_samsung_pay_use',           //KG이니시스 삼성페이 사용
 'de_inicis_lpay_use',           //KG이니시스 Lpay 사용
+'de_inicis_kakaopay_use',       //KG이니시스 카카오페이 사용
 'de_inicis_cartpoint_use',      //KG이니시스 신용카드 포인트 결제
 'de_kakaopay_mid',              //카카오페이 상점MID
 'de_kakaopay_key',              //카카오페이 상점키
@@ -348,6 +350,7 @@ $sql = " update {$g5['g5_shop_default_table']}
                 de_easy_pay_use               = '{$de_easy_pay_use}',
                 de_samsung_pay_use            = '{$de_samsung_pay_use}',
                 de_inicis_lpay_use            = '{$de_inicis_lpay_use}',
+                de_inicis_kakaopay_use        = '{$de_inicis_kakaopay_use}',
                 de_inicis_cartpoint_use       = '{$de_inicis_cartpoint_use}',
                 de_card_noint_use             = '{$de_card_noint_use}',
                 de_card_point                 = '{$de_card_point}',
@@ -428,6 +431,7 @@ $sql = " update {$g5['config_table']}
                 cf_icode_pw             = '{$cf_icode_pw}',
                 cf_icode_server_ip      = '{$_POST['cf_icode_server_ip']}',
                 cf_icode_server_port    = '{$_POST['cf_icode_server_port']}',
+                cf_icode_token_key      = '{$cf_icode_token_key}',
                 cf_lg_mid               = '{$cf_lg_mid}',
                 cf_lg_mert_key          = '{$cf_lg_mert_key}' ";
 sql_query($sql);
