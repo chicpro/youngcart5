@@ -2,7 +2,7 @@
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
 // add_stylesheet('css 구문', 출력순서); 숫자가 작을 수록 먼저 출력됨
-add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0, G5_CSS_VER);
+add_stylesheet('<link rel="stylesheet" href="'.G5_SHOP_CSS_URL.'/style.css">', 0);
 add_javascript('<script src="'.G5_JS_URL.'/jquery.bxslider.js"></script>', 10);
 ?>
 
@@ -81,7 +81,7 @@ add_javascript('<script src="'.G5_JS_URL.'/jquery.bxslider.js"></script>', 10);
                         <?php echo get_sns_share_link('kakaotalk', $sns_url, $sns_title, G5_MSHOP_SKIN_URL.'/img/sns_kakao.png'); ?>
                         <?php
                         $href = G5_SHOP_URL.'/iteminfo.php?it_id='.$it_id;
-                        ?>
+                        ?> 
                         <a href="javascript:popup_item_recommend('<?php echo $it['it_id']; ?>');" id="sit_btn_rec"><i class="fa fa-envelope-o" aria-hidden="true"></i><span class="sound_only">추천하기</span></a>
                     </div>
                 </div>
@@ -242,7 +242,7 @@ add_javascript('<script src="'.G5_JS_URL.'/jquery.bxslider.js"></script>', 10);
 <div class="btn_option_wr">
     <button type="button" class="btn_cart_op btn_submit btn">구매하기</button>
 </div>
-
+ 
 <div id="btn_option">
     <div class="sl_option">
         <?php
@@ -266,7 +266,7 @@ add_javascript('<script src="'.G5_JS_URL.'/jquery.bxslider.js"></script>', 10);
         <section class="sit_option">
             <h3>추가옵션</h3>
             <div class="sit_op_sl">
-
+  
             <?php // 추가옵션
             echo $supply_item;
             ?>
@@ -312,7 +312,7 @@ add_javascript('<script src="'.G5_JS_URL.'/jquery.bxslider.js"></script>', 10);
 
         <div id="sit_tot_price"></div>
         <?php } ?>
-
+    
         <?php if($is_soldout) { ?>
         <p id="sit_ov_soldout">상품의 재고가 부족하여 구매할 수 없습니다.</p>
         <?php } ?>
@@ -396,7 +396,7 @@ $(function (){
             } //if
             ?>
         </li>
-
+        
         <!-- 사용후기 시작 { -->
         <li id="sit_use">
             <h2>사용후기</h2>
@@ -415,7 +415,7 @@ $(function (){
         <!-- 배송정보 시작 { -->
         <li id="sit_dvex">
             <h2>배송/교환정보</h2>
-
+            
             <div id="sit_dvr">
                 <h3>배송정보</h3>
                 <?php echo conv_content($default['de_baesong_content'], 1); ?>
@@ -438,7 +438,7 @@ $(function (){
 <script>
 $(function (){
     $(".tab_con>li").hide();
-    $(".tab_con>li:first").show();
+    $(".tab_con>li:first").show();   
     $(".tab_tit li button").click(function(){
         $(".tab_tit li button").removeClass("selected");
         $(this).addClass("selected");
@@ -479,7 +479,7 @@ $(window).bind("pageshow", function(event) {
 $(function(){
     //이미지
     $('#slide-counter').prepend('<strong class="slide-index current-index"></strong> / ');
-
+     
     var slider = $('#sit_pvi_slide').bxSlider({
         auto: true,
         pager:false,
@@ -491,8 +491,11 @@ $(function(){
             $('#slide-counter .current-index').text(newIndex + 1);
         }
     });
-
-    $('#slide-counter').append('<span class="total-slides">'+slider.getSlideCount()+'</span>');
+   
+    try {
+        $('#slide-counter').append('<span class="total-slides">'+slider.getSlideCount()+'</span>');
+    } catch (error) {
+    }
 
     $('a.pager-prev').click(function () {
         var current = slider.getCurrentSlide();
@@ -501,7 +504,7 @@ $(function(){
     $('a.pager-next').click(function () {
         var current = slider.getCurrentSlide();
         slider.goToNextSlide(current) + 1;
-    });
+    });     
 
     // 상품이미지 크게보기
     $(".popup_item_image").click(function() {
@@ -555,7 +558,7 @@ function fsubmit_check(f)
         return false;
     }
 
-    if($(".sit_opt_list").size() < 1) {
+    if($(".sit_opt_list").length < 1) {
         alert("상품의 선택옵션을 선택해 주십시오.");
         return false;
     }
@@ -627,7 +630,7 @@ function fitem_submit(f)
         return false;
     }
 
-    if($(".sit_opt_list").size() < 1) {
+    if($(".sit_opt_list").length < 1) {
         alert("상품의 선택옵션을 선택해 주십시오.");
         return false;
     }
